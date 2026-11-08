@@ -1,0 +1,5 @@
+Copyright (c) 2026 ProtoHQ. All rights reserved.
+
+The documentation, agent skills, schema and examples in this repository are provided for use with
+Proto. Use of the `@protohq/cli` package and Proto Cloud is governed by the Proto End User License
+Agreement published with the package.
