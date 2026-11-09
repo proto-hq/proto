@@ -1,5 +1,26 @@
-Copyright (c) 2026 ProtoHQ. All rights reserved.
+Proto End User License Agreement
 
-The documentation, agent skills, schema and examples in this repository are provided for use with
-Proto. Use of the `@protohq/cli` package and Proto Cloud is governed by the Proto End User License
-Agreement published with the package.
+Copyright (c) 2026 Proto HQ. All rights reserved.
+
+You are granted a non-exclusive, non-transferable license to install and use Proto
+for local prototype authoring, previewing, building and review, free of charge,
+including for commercial projects. You retain ownership of your own components,
+prototypes and output. Hosted services require a separate subscription or trial
+and are subject to their service terms.
+
+You may not redistribute, sublicense, sell, copy for redistribution, modify, or
+create derivative products from the Software, or reverse engineer, decompile or
+disassemble it, except to the extent applicable law expressly permits despite
+this restriction. No rights to the Software are granted except those stated here.
+
+Third-party components remain subject to their respective licenses, reproduced
+in the package’s THIRD_PARTY_NOTICES.md. This agreement does not restrict those rights.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE AUTHORS SHALL NOT
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE
+OR ITS USE.
+
+This license terminates if you breach its terms. On termination, stop using and
+delete your copies of the Software.

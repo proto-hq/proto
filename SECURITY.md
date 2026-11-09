@@ -1,18 +1,19 @@
-# Security Policy
+# Security policy
 
-## Reporting a vulnerability
+Report vulnerabilities privately through this repository's GitHub Security advisory reporting
+feature. Include affected versions, reproduction steps, impact and a minimal example with no
+credentials or customer data. Do not disclose an exploitable issue in a public bug report.
 
-Do not open a public issue. Report it privately through
-[GitHub security advisories](https://github.com/proto-hq/proto/security/advisories/new) with the
-affected version of `@protohq/cli` or the affected Proto Cloud URL, the steps to reproduce and the
-impact you observed. You will get an acknowledgement within a few days.
+Use the current released CLI. Security fixes are delivered through package updates and hosted
+service updates. See [security and trust](docs/security.md) for credential and snapshot boundaries.
 
-## Scope
+## Release verification
 
-- `@protohq/cli` (the `proto` command, the local gallery and the stdio MCP server).
-- Proto Cloud: `protohq.design`, `api.protohq.design`, `mcp.protohq.design` and shared prototypes on
-  `*.protohq.app`.
-
-Shared prototypes on `*.protohq.app` run code written by Proto customers in isolated origins.
-Reports about one share reaching another share, the product origin or a reviewer's session are
-especially welcome.
+`@protohq/cli` is built and published from private CI using a granular npm token,
+without npm provenance. There is no public source attestation to verify.
+Check the intended version and channel with `npm view @protohq/cli dist-tags`,
+and inspect `npm view @protohq/cli@<version> dist.integrity`. npm verifies this
+SHA-512 integrity when installing the registry archive. Compare the version with
+the matching tag and curated GitHub Release at <https://github.com/proto-hq/proto/releases>.
+Public tags identify the documentation surface, not the private source commit.
+These checks establish registry artifact and release consistency, not build-origin proof.
