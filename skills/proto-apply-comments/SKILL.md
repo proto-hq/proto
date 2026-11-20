@@ -54,11 +54,15 @@ add `--remote` to the `comments` and `review status` commands only. `check`, `fl
    - Flow comments have `target.kind: "node"`. `node` is the flow node id, or `null` for the whole
      flow. `proto flow show <id> --json`, where `<id>` is the comment key without its `flow-`
      prefix, maps the node to its prototype and state.
-4. **Reproduce.** With `proto dev` running, open the gallery URL from
+4. **Reproduce.** Select the owning app with `--app` for project commands;
+   `proto status --json` lists projects without starting anything. Run `proto dev` in that app's terminal and open its `/p/<label>/` gallery
+   URL from
    `proto url <slug> --state <context.state> --theme <theme> --role <role> --width
    <viewport.width>`, leaving out the flags whose context value is `null`. The gallery applies
    the width; a `--bare` render document takes the window's width instead. For a flow comment,
-   use the node's prototype and state.
+   use the node's prototype and state. Get preview addresses from `proto url <slug> --bare` after
+   the first start, never by constructing a port. The home at `http://127.0.0.1:4400/` and the
+   project menu switch projects; comment drafts are isolated per project.
 5. **Fix** the owner. When the request needs a state the prototype lacks, add it to the view's
    props and to the prototype's `meta.states`.
 6. **Verify.** `proto check --json` must exit 0, with no `problems` and no `error`. Run the
@@ -78,6 +82,19 @@ add `--remote` to the `comments` and `review status` commands only. `check`, `fl
 
 The work is done when every thread you took is either resolved with a verified note or open with
 a reply that says what is needed. Approval stays with the reviewer.
+
+## Local process lifecycle
+
+Ctrl-C stops only this project's `proto dev`. `proto stop --json` stops the shared Proto process
+and leaves project terminals waiting; `proto start --json` reconnects them. Both are idempotent;
+`proto status --json` starts nothing. `PROTOHQ_PORT` chooses Proto's remembered port (default
+4400); stop it before moving the address. `proto dev --json` prints one stdout JSON line and
+keeps serving; later status messages go to stderr. Captures reuse a verified ready project even
+while Proto is stopped, or temporarily serve it without starting Proto in the background.
+
+For failures, inspect `~/.config/protohq/daemon/daemon.log` and the sibling proto skill's
+`references/troubleshooting.md`: `port_in_use`, `daemon_unavailable`, `daemon_version_mismatch`,
+`state_unavailable`, `project_busy` and `project_offline` have specific recovery steps.
 
 ## Pitfalls
 

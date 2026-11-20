@@ -100,9 +100,40 @@ moonrepo's toolchain manager.
   provider (router, i18n, toasts) gets it from `Canvas`; a view that needs data gets props.
 - **`host_not_allowed`**: open the gallery at `127.0.0.1`, or add the hostname (without the port)
   to `dev.allowedHosts`.
-- **`port_in_use`**: both `port` and `port + 1` must be free. Use `--port <n>` or `PROTOHQ_PORT`.
 - **"Proto shell is not built"**: only in a source checkout of proto. The published package
   ships the prebuilt shell, so run the package's `build:shell` in that checkout.
+
+## Local serving and connection
+
+Run `proto status --json` first; it starts nothing. Inspect
+`~/.config/protohq/daemon/daemon.log` for startup details.
+
+- **`port_in_use`**: another program or another user's Proto holds the address. Stop your own
+  Proto first if necessary, then set `PROTOHQ_PORT=4500 proto start`. The default is 4400; the
+  last port is remembered. For preview exhaustion, reservations are freed when project folders
+  disappear or have not run for 30 days; for occupied previews, read the reported port list.
+- **`daemon_unavailable`**: Proto did not start within 10 seconds (read the log), or its PID does
+  not answer (run `proto stop`, then `proto start`, as the error directs).
+- **`daemon_version_mismatch`**: upgrade `@protohq/cli` in this project; the running Proto needs a
+  newer protocol. Ordinary version skew warns on stderr; newer project packages upgrade Proto
+  and running projects reconnect. `status` marks older project versions as `behind`.
+- **`state_unavailable`**: Proto cannot use `~/.config/protohq/daemon`. Read the reason (permissions,
+  unreadable data or a held state lock); preserve state and fix that cause before retrying.
+- **`project_busy`**: another capture is serving the project or `proto dev` is still starting
+  after 60 seconds. Wait for that command, or keep `proto dev` running to share a ready server.
+- **`project_offline`**: start this project with the `cd <folder> && proto dev` command in the
+  message. For `proto url <slug> --bare`, start it once to reserve its first preview address.
+- **`project_not_found`**: open home at `http://127.0.0.1:4400/` and select a known project.
+- **A connection overlay or stopped project page**: Ctrl-C stops only that project's terminal.
+  Restart it with `proto dev`. `proto stop` instead leaves projects alive and waiting for
+  `proto start`. Captures can still use their previews. An unexpected Proto stop triggers
+  automatic recovery; if it fails, project terminals retry and print the error.
+
+Discover gallery links with `proto url <slug>` (under `/p/<label>/`) and separate previews with
+`proto url <slug> --bare`. These commands never start anything. Preview and story addresses are
+reserved per project; use `proto status --json` for running root addresses. `dev.allowedHosts`
+applies only to project URLs; the home remains on 127.0.0.1. Lifecycle commands have `--json`
+forms; `dev` emits one stdout JSON line and sends subsequent updates to stderr.
 
 ## Storybook and Vitest
 

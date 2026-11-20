@@ -45,4 +45,7 @@ Generated from the shipped CLI/local MCP catalog.
 | proto dev                  | —                          | local | read                   | Process lifecycle                                       |
 | proto build                | —                          | local | read                   | Process lifecycle                                       |
 | proto mcp                  | —                          | local | read                   | Process lifecycle                                       |
+| proto start                | —                          | local | read                   | Process lifecycle                                       |
+| proto stop                 | —                          | local | read                   | Process lifecycle                                       |
+| proto status               | —                          | local | read                   | Process lifecycle                                       |
 | proto migrate              | —                          | local | write files            | Operator action with interactive verification           |

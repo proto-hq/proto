@@ -203,12 +203,6 @@
             "default": {},
             "type": "object",
             "properties": {
-                "port": {
-                    "default": 4400,
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 65534
-                },
                 "poll": {
                     "default": false,
                     "type": "boolean"

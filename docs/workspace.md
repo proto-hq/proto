@@ -1,8 +1,7 @@
 # Workspace collaboration
 
 The workspace home lists hosted shares with target, version, review status and lifecycle. Open a
-share to review it, inspect trial or plan status, start an eligible trial, or revoke a share when
-finished. Plan loss can pause hosted access; upgrading restores eligible shares. Publishing a new
+share to review it, inspect plan status, upgrade to Pro, or revoke a share when finished. Plan loss can pause hosted access; upgrading restores eligible shares. Publishing a new
 version reopens an approved share for review.
 
 The workspace inbox collects comment threads across shares. Filter by open/resolved status, share

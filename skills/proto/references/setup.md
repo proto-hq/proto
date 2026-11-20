@@ -35,7 +35,8 @@ message.
 - `proto/review/.gitignore`, which ignores locks, temporary files and pending uploads;
 - `proto()` added to the Vite config's `plugins` array, plus its import.
 
-When `proto.config.ts` already exists, `init` writes none of these. `--force` rewrites all of them,
+When `proto.config.ts` already exists, `init` preserves configuration and rewrites an older
+preview record to `preview: "proto url {slug} --bare"`, reporting the changed file. `--force` rewrites all of them,
 including your config and canvas, so do not use it on a configured app. When only some of the
 files exist, `init` stops with `invalid_config` (`<file> exists; use --force`).
 
@@ -75,16 +76,37 @@ export default defineProtoConfig({
 | `guards.productionBoundary`   | `true`                 | Fail the app build when prototype-only code reaches it         |
 | `evidence.dir`                | `"docs/design"`        | Screenshot and evidence output, inside the app root            |
 | `build.includeReview`         | `false`                | Ship review history in static `proto build` output             |
-| `dev.port`                    | `4400`                 | Shell port; the render origin uses `port + 1`                  |
 | `dev.poll`                    | `false`                | Polling file watcher                                           |
-| `dev.allowedHosts`            | `[]`                   | Extra hostnames, without ports, accepted by both dev servers   |
+| `dev.allowedHosts`            | `[]`                   | Extra hostnames, without ports, for this project's URLs        |
 
 - Spec and role ids match `^[a-z0-9][a-z0-9_-]*$`.
 - `specs` as a function runs in Node with the app root. Returning `null` skips spec validation:
   `proto check` warns `specs_unavailable` and accepts any `spec`. Use `null` when the catalog
   comes from files that can be absent, such as an ignored directory in CI or a fresh worktree.
   Returning `{}` makes every `spec` unknown. Throwing is `invalid_config`.
-- Environment overrides: `PROTOHQ_PORT`, `PROTOHQ_POLL=1`, `PROTOHQ_TOKEN`, `PROTOHQ_WORKSPACE`, `PROTOHQ_API_URL` (loopback only).
+- Environment overrides: `PROTOHQ_PORT`, `PROTOHQ_POLL=1`, `PROTOHQ_TOKEN`, `PROTOHQ_WORKSPACE`, `PROTOHQ_API_URL` (loopback, or exactly `https://staging-api.protohq.design` for staging).
+
+## Shared Proto address
+
+`proto dev` serves this project at `http://127.0.0.1:4400/p/<label>/` and starts Proto in the
+background when needed. `/` lists projects. Every app keeps its own foreground terminal; Ctrl-C
+stops only that app. `proto stop` leaves those terminals waiting; `proto start` reconnects them.
+`proto status` never starts anything. All three support `--json`, as does `dev` (one stdout JSON
+line followed by lifecycle messages on stderr).
+
+`PROTOHQ_PORT` selects Proto's port, default 4400. Proto remembers the last port when the variable
+is absent. Stop it before using `PROTOHQ_PORT=4500 proto start` to move the address; a different
+variable does not move an already running Proto. `PROTOHQ_POLL=1` enables polling for this project.
+`dev.allowedHosts` applies only to this project's URLs; home and the project list stay on the
+loopback address. Localhost redirects to 127.0.0.1.
+
+Prototypes and story roots have separate reserved preview origins; reordering roots preserves
+addresses. Discover a prototype's address with `proto url <slug> --bare` after its first start,
+and running story addresses with `proto status --json`. Never construct preview URLs from the
+Proto port. Capture commands need no background process and can temporarily serve the project.
+Startup diagnostics live in `~/.config/protohq/daemon/daemon.log`; see `troubleshooting.md` for
+`port_in_use`, `daemon_unavailable`, `daemon_version_mismatch`, `state_unavailable`, `project_busy`
+and `project_offline`.
 
 ## Guards
 

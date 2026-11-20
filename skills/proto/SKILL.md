@@ -28,9 +28,9 @@ project rules (which views exist, where fixtures live, which specs to use) in th
   `export const flow = defineFlow({...})`) is read from the syntax tree and never executed. Only
   string, boolean, array and object literals are allowed: no variables, numbers, spreads,
   template strings or computed values.
-- **Base origins.** The shell (gallery and review API) runs on `127.0.0.1:<dev.port>` (4400 by
-  default). It is prebuilt and never imports app code. Prototypes render on the render origin,
-  `port + 1`, compiled by the app's own `vite.config.ts` in the `proto-render` mode, one state
+- **Base origins.** Proto serves project galleries at `http://127.0.0.1:4400/p/<label>/`.
+  `PROTOHQ_PORT` selects Proto's remembered port (default 4400); `/` lists all projects. Prototypes render on a separate project preview
+  origin, compiled by the app's own `vite.config.ts` in the `proto-render` mode, one state
   per iframe document. The two talk only through a validated `postMessage` protocol. App CSS
   loads on the render origin only.
 - **Canvas and Frame.** `proto.canvas.tsx` exports `Canvas` (providers around every state; it
@@ -50,6 +50,32 @@ project rules (which views exist, where fixtures live, which specs to use) in th
   Storybook/Vitest with `protoPresentation()` when a prototype, draft or story reaches a module
   listed in `guards.forbidRuntimeImports`; it cannot see a global `fetch` or an unlisted client.
   Matching rules: `references/setup.md`, section Guards.
+
+## One address, project terminals
+
+`proto dev` starts Proto in the background if needed, prints the project's `/p/<label>/` URL and
+home URL, then serves this project until Ctrl-C. Another app uses the same address with a different
+label. Ctrl-C stops only this project. The home groups projects by state (running, starting,
+stopped); switch projects from the first breadcrumb or the Projects group in search. Colliding
+tab titles use `Title · label`; the home is `Projects · Proto`. Unsent comment drafts belong to
+their project; old browser drafts are not migrated. The connection overlay clears on reconnect;
+a changed project instance reloads the gallery.
+
+For agents: `proto status --json` inspects without starting anything; `proto start --json` and
+`proto stop --json` are idempotent and return at once. Stopping Proto leaves project terminals
+alive and waiting for the next start. After an unexpected stop, project terminals restart Proto
+on the same port. `proto dev --json` writes one stdout JSON line and keeps serving; later
+lifecycle messages and warnings go to stderr. These process commands are CLI-only.
+
+`proto url <slug>` returns a gallery link; `proto url <slug> --bare` discovers the separate
+preview address after the project has run once. Neither starts anything. Captures reuse a ready
+project (also while Proto is stopped), or temporarily serve it without starting Proto in the
+background. Do not calculate preview addresses. To change Proto's port, stop it first, then use
+`PROTOHQ_PORT=4500 proto start`; the last port is remembered for later runs.
+
+Startup diagnostics: `~/.config/protohq/daemon/daemon.log`. Codes include `port_in_use`,
+`daemon_unavailable`, `daemon_version_mismatch`, `state_unavailable`, `project_busy` and
+`project_offline`; read `references/troubleshooting.md` for the corresponding recovery.
 
 ## Proto or Storybook
 
@@ -118,21 +144,21 @@ and `vite`; optional `dir` defaults to `.`, `title` to id, `themeGlobal` to `the
 and `guards.forbidRuntimeImports` to empty. Paths are relative to `dir`. The root Vite config
 installs React, CSS and aliases without `proto()`; `.storybook/main.ts` is never executed.
 Install `storybook` and `@storybook/react-vite` at `~10.6.0` in each root. Never rewrite CSF.
-The two base origins are joined by one origin per root at `port + 2 + index`; clear old MSW
-workers/site data after reordering roots. Stories use their preview, not `proto.canvas.tsx`.
+Each story root gets a separate reserved origin that stays with the project, independent of
+root ordering. Discover running addresses with `proto status --json`. Stories use their preview, not `proto.canvas.tsx`.
 `sb.mock` is inert (`story_mock_unsupported`); do not claim module mocking works.
 
 - `proto stories list --root <id> --filter '<story-id-glob>' --json` returns roots and files.
   No config returns empty arrays (human: `No stories configured.`), exit 0.
 - `proto stories run --root <id> --filter '<glob>' --theme dark --json` runs selected roots only.
-  Options: `--concurrency` (6), `--timeout` ms (30000, clamped 1000–120000), `--port`.
+  Options: `--concurrency` (6), `--timeout` ms (30000, clamped 1000–120000).
   The timeout counts the story's own stages; story-server compile time pauses it (up to
   120000 ms extra), so a cold cache is not a story failure. `play` waits are not extended.
   JSON: `summary` and `stories` rows (`id`, `root`, `stage`, `status`, `hasPlay`, `durationMs`,
   `error`). Registry problems do not prevent selected stories running, but exit 1.
-  Exit 0 all pass, 1 failure/empty filter, 3 missing Playwright. Existing servers must match
-  `projectId`; interrupt closes only owned resources without a partial report.
-- `proto stories url <id>` links `/?c=<component>&story=<id>`.
+  Exit 0 all pass, 1 failure/empty filter, 3 missing Playwright. A ready project is reused through its
+  lock and verified server instance; interrupt closes only owned resources without a partial report.
+- `proto stories url <id>` links `/p/<label>/?c=<component>&story=<id>`.
 - MCP: `proto_stories_list`, `proto_stories_run` (requires root or filter), `proto_stories_url`.
 - `check` validates story config/index only. Guards run in the story server/runner, without
   inheriting the app prototype guard. Local builds include lazy story roots under
@@ -145,5 +171,5 @@ workers/site data after reordering roots. Stories use their preview, not `proto.
   component plus `--note` and `--selector`. Remote review does not accept story keys.
 
 Errors: `invalid_input` exit 2 (unknown root, missing/invalid state); `story_not_found` exit 1;
-`project_mismatch` exit 1 (pass another `--port`); `storybook_missing` / `storybook_unsupported`
+`project_offline` exit 1 (the project stopped during capture); `storybook_missing` / `storybook_unsupported`
 exit 3 (install supported peers); `playwright_missing` exit 3 (install Chromium).

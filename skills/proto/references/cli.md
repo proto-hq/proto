@@ -52,7 +52,10 @@ Write files:
 
 Captures default to the first state, `light` and a width of 1440, use a 900px tall viewport and
 write `<evidence.dir>/<slug>/<state>--<theme>--<width>.png` or `<evidence.dir>/<slug>/index.html`.
-They need Playwright Chromium and start a temporary dev server when none is running.
+They need Playwright Chromium. They reuse a ready project through its lock and verified instance,
+even while Proto is stopped, or serve it temporarily without starting Proto in the background.
+Evidence HTML uses source paths without local origins. Another capture or a startup can block
+reuse for up to 60 seconds (`project_busy`); losing the project fails with `project_offline`.
 
 Review comments use the local store by default; add `--remote --share <slug>` for the hosted share. Each
 command returns `{ comment }` unless noted:
@@ -91,14 +94,55 @@ Run by people, never by agents (none of these is an MCP tool):
 | `proto login` / `proto logout`                | Sign in to Proto Cloud or remove the CLI session    |
 | `proto migrate --from <dir> [--dry-run]`      | Rewrite v1/v2 review files to v3                    |
 
+Proto Cloud requests, including device login, report the CLI version in `X-Proto-Client`,
+its platform and architecture in `X-Proto-Platform`, and its kind in `X-Proto-Device-Kind`.
+The device approval screen and account device list display these self-reported facts. The kind
+is `ci` for a truthy `CI` value other than `false` or `0`, `laptop` on macOS, Windows, or
+Linux with a display, and `server` elsewhere.
+
 Process lifecycle:
 
 | Command                           | What                                                             |
 | --------------------------------- | ---------------------------------------------------------------- |
 | `proto init [--skills] [--force]` | Scaffold the app and/or install the agent skills (`setup.md`)    |
-| `proto dev [--port <n>] [--open]` | Shell on `port` (4400), render origin on `port + 1`; both strict |
+| `proto start`                     | Start Proto in the background; `{ url, started, pid, version }`  |
+| `proto stop`                      | Stop Proto; `{ stopped, waiting }`; project terminals stay alive |
+| `proto status`                    | Inspect without starting anything; `{ daemon, projects }`        |
+| `proto dev [--open]`              | Project gallery on the shared Proto address                      |
 | `proto build [--remote]`          | `dist-proto/`: read-only static gallery, or the remote build     |
 | `proto mcp`                       | MCP server over stdio                                            |
+
+## Project URLs and lifecycle JSON
+
+`proto dev` prints a project URL `http://127.0.0.1:4400/p/<label>/` and home
+`http://127.0.0.1:4400/`. Each project's foreground terminal owns its server; Ctrl-C stops only
+that project. `start` and `stop` are idempotent, return at once and support `--json`.
+`proto status --json` returns `daemon: null` when Proto is stopped and project states including
+`waiting` for live terminals. Running rows carry `cliVersion`, `behind`, `renderOrigin` and
+`storyRoots` preview addresses, plus identity, folder, URL, PID and timestamps.
+
+```console
+$ proto dev --json
+{"url":"http://127.0.0.1:4400/p/acme-web/","home":"http://127.0.0.1:4400/","label":"acme-web","projectId":"9f2c41d07ab3e655","state":"running","renderOrigin":"http://127.0.0.1:24400"}
+$ proto start --json
+{"url":"http://127.0.0.1:4400/","started":false,"pid":4242,"version":"0.2.0"}
+$ proto stop --json
+{"stopped":true,"waiting":["acme-web"]}
+```
+
+With no known projects and Proto stopped, `proto status --json` returns
+`{"daemon":null,"projects":[]}`. `dev` keeps serving after its one stdout JSON line; later
+lifecycle messages and warnings use stderr.
+A second `dev` exits 0 with `state: "already_running"` and may have `renderOrigin: null` while
+startup finishes. After `stop`, projects wait for `start` and reconnect; an unexpected stop
+triggers recovery on the same port.
+
+`PROTOHQ_PORT` chooses Proto's port (default 4400), remembered when unset. To change it, stop
+Proto, then run `PROTOHQ_PORT=4500 proto start`. `proto url <slug>` and `proto stories url <id>`
+never start anything and return `/p/<label>/?p=<slug>` and
+`/p/<label>/?c=<component>&story=<id>` at that address. `proto url <slug> --bare` returns a
+reserved preview URL after the first project start, or `project_offline` before it. The preview
+address stays with the project; never derive it from Proto's port.
 
 ## JSON shapes worth knowing
 
@@ -122,15 +166,24 @@ Process lifecycle:
   - `thread`: `[{ id, at, editedAt, body, author: "reviewer" | "agent", authorName?,
     attachments }]`.
 
+## Diagnose local serving
+
+Inspect `proto status --json` and `~/.config/protohq/daemon/daemon.log`. `port_in_use` means an
+address is occupied or preview ports cannot be allocated; `daemon_unavailable` means Proto did
+not start or answer; `daemon_version_mismatch` requires upgrading this project's package;
+`state_unavailable` means the private state cannot be used. `project_busy` means another command
+or startup holds the project; `project_offline` means it stopped or lacks a preview address.
+See `troubleshooting.md` and the generated `errors.md` for exact recovery and messages.
+
 ## Exit and error codes
 
-| Exit | Meaning                     | Typical codes                                                                                                                                                                       |
-| ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0    | ok (warnings allowed)       |                                                                                                                                                                                     |
-| 1    | problems or user error      | `invalid_config`, `slug_taken`, `comment_not_found`, `message_not_owned`, `invalid_source`, `port_in_use`, `not_a_vite_app`, `key_busy`, `attachment_*`, `review_has_open_comments` |
-| 2    | usage                       | unknown command or flag, a missing required argument (`selector is required`), `app_required`                                                                                       |
-| 3    | missing optional dependency | `playwright_missing`; the MCP SDK for `proto mcp`                                                                                                                                   |
-| 4    | remote or auth              | `not_logged_in`, `auth_required`, `invalid_credential`, `scope_denied`, `plan_required`, `seat_required`, `cli_outdated`                                                            |
+| Exit | Meaning                     | Typical codes                                                                                                                                                                                                                                                                                |
+| ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0    | ok (warnings allowed)       |                                                                                                                                                                                                                                                                                              |
+| 1    | problems or user error      | `invalid_config`, `slug_taken`, `comment_not_found`, `message_not_owned`, `invalid_source`, `port_in_use`, `daemon_unavailable`, `daemon_version_mismatch`, `state_unavailable`, `project_busy`, `project_offline`, `not_a_vite_app`, `key_busy`, `attachment_*`, `review_has_open_comments` |
+| 2    | usage                       | unknown command or flag, a missing required argument (`selector is required`), `app_required`                                                                                                                                                                                                |
+| 3    | missing optional dependency | `playwright_missing`; the MCP SDK for `proto mcp`                                                                                                                                                                                                                                            |
+| 4    | remote or auth              | `not_logged_in`, `auth_required`, `invalid_credential`, `scope_denied`, `plan_required`, `seat_required`, `cli_outdated`                                                                                                                                                                     |
 
 Errors print `{ "error": { "code", "message", ... } }` with `--json`. Usage errors have only a
 `message`. `key_busy` means another writer holds the review lock; retry.
@@ -147,7 +200,7 @@ Errors print `{ "error": { "code", "message", ... } }` with `--json`. Usage erro
   accept `"remote": true`.
 - Results are the same JSON as `--json`. Errors come back as `isError` with the same `error`
   body.
-- Not exposed: `init`, `dev`, `build`, `mcp`, `migrate`, `review approve`, `review reopen`,
+- Not exposed: `init`, `dev`, `start`, `stop`, `status`, `build`, `mcp`, `migrate`, `review approve`, `review reopen`,
   `review unlock` and cloud management commands. `proto_comments_attachments` always writes to
   `.tmp/proto/<id>/`.
 

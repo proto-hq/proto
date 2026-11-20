@@ -87,6 +87,80 @@ Install these optional peers only for the features you use:
 
 The gallery, local reviews and static builds do not require these optional integrations.
 
+## One address for every project
+
+Run `proto dev` in each app's terminal. Proto starts in the background when needed and serves
+all project galleries at one address:
+
+```console
+$ cd ~/Dev/acme/apps/web
+$ proto dev
+Started Proto in the background. Stop it with: proto stop
+Proto    http://127.0.0.1:4400/p/acme-web/
+Home     http://127.0.0.1:4400/
+```
+
+A second app gets its own `/p/<label>/` URL at the same address. The home page at
+`http://127.0.0.1:4400/` groups known projects by state: running, starting and stopped. Open a
+project from there, the first breadcrumb's project menu, or the search palette's Projects group.
+Folders under your home are shown with `~`. Tabs with the same title include the project label
+(`Title · label`); the home tab is `Projects · Proto`. Unsent comment drafts belong to their
+project; drafts saved before project isolation are left in the browser and are not migrated.
+
+- Ctrl-C stops only the project in that terminal. Other projects and Proto keep running.
+- `proto start` starts Proto in the background and returns; repeating it is harmless.
+- `proto stop` stops Proto and returns. Project terminals stay alive, waiting for `proto start`,
+  then reconnect. Their previews remain available while Proto is stopped.
+- `proto status` lists the address, versions, project states, folders and URLs without starting
+  anything. It can show `waiting` while Proto is stopped.
+- After an unexpected stop, running projects try to restart Proto on the same port. The canvas
+  shows a connection overlay while disconnected; it reloads only if the project instance changed.
+
+`PROTOHQ_PORT` chooses Proto's port (default `4400`) when it starts. The last port is remembered
+for later starts and URL commands. To move it, run `proto stop`, then
+`PROTOHQ_PORT=4500 proto start`. Setting the variable while Proto is already running takes effect
+after the next stop. `PROTOHQ_POLL=1` enables the project's polling file watcher.
+
+Get a gallery URL with `proto url login-form --state error`. Get the separate preview address
+with `proto url login-form --state error --bare`; start the project once before requesting its
+first preview address. Preview and story origins are reserved per project, so do not construct
+addresses from a gallery port. The app's own Vite config compiles prototypes and handles HMR.
+Localhost redirects to `127.0.0.1`; `dev.allowedHosts` accepts extra hostnames for that project's
+URLs only. The home and project list stay on the loopback address.
+
+For agents, use `proto status --json`, `proto start --json`, `proto stop --json` and
+`proto dev --json`. The first three return at once. `dev` writes one JSON line to stdout and
+keeps serving the project; later lifecycle messages and warnings go to stderr:
+
+```json
+{
+  "url": "http://127.0.0.1:4400/p/acme-web/",
+  "home": "http://127.0.0.1:4400/",
+  "label": "acme-web",
+  "projectId": "9f2c41d07ab3e655",
+  "state": "running",
+  "renderOrigin": "http://127.0.0.1:24400"
+}
+```
+
+A second `dev` for the same project exits 0 with `state: "already_running"`; `renderOrigin` may
+be `null` while it starts. `start` returns `{ url, started, pid, version }`; `stop` returns
+`{ stopped, waiting }`; `status` returns `{ daemon, projects }`, with `daemon: null` when Proto
+is stopped and project rows carrying state, version and preview addresses. Lifecycle commands
+are CLI-only; MCP still exposes `proto_review_status` for review state.
+
+Captures (`proto screenshot`, `proto evidence`, `proto stories run`) reuse this project's running
+server, including while Proto is stopped. Otherwise they serve it temporarily and close their
+own resources without starting Proto in the background. Evidence HTML links to preview source
+paths, without embedding a local origin.
+
+If Proto does not start, inspect `~/.config/protohq/daemon/daemon.log`. `port_in_use` means the
+address or preview ports are occupied; `daemon_unavailable` means Proto did not start or answer;
+`daemon_version_mismatch` requires upgrading `@protohq/cli` in the project; `state_unavailable`
+means its private state cannot be used. `project_busy` means a capture or startup still owns the
+project; `project_offline` means the project stopped or has no preview address yet. Use
+`proto status --json` to inspect before retrying. See the error registry for exact messages.
+
 ## Write a prototype
 
 A component prototype lives beside the view it composes and renders it with fixture props:
@@ -220,8 +294,8 @@ Free includes local authoring, review and static builds. Local CLI commands and 
 `proto mcp` server run without login or requests to Proto Cloud. Proto collects no telemetry.
 
 Pro adds hosted collaboration for **US$15/month per Editor seat**, or **US$12/month per Editor
-seat billed yearly (US$144/year)**, with a **14-day trial**. The first successful publish starts
-an eligible workspace's trial.
+seat billed yearly (US$144/year)**, plus any tax Stripe Tax adds at checkout. A Free workspace's
+`proto share` answers `plan_required` with its upgrade URL.
 
 ```sh
 proto login
@@ -237,13 +311,17 @@ Publish a prototype, `proto share --flow <id>`, or `proto share --all`. Hosted s
 `proto share revoke <slug>` to manage shares. People approve in the browser; approvers need
 an Editor seat. Publishing a new version reopens an approved share.
 
+Add a version note with `--note "Ready for review"` (up to 280 characters). With Playwright,
+publishing includes up to 60 state thumbnails. Use `--no-captures` to skip them.
+
 Store commands require `--remote --share <slug>` and CLI login. Missing credentials report
 `not_logged_in` (exit 4); missing `--share` reports `invalid_input` (exit 2); connection failures
 report `network_unavailable` (exit 4). Local MCP store tools accept `remote: true` and `share`.
 For hosted access without a checkout, connect an OAuth-capable Streamable HTTP MCP client to
 `https://mcp.protohq.design/mcp` and authorize the workspace in the browser. Agents never approve.
 
-The API is `https://api.protohq.design`. Self-hosted server exports and the former Cloudflare
+The API is `https://api.protohq.design` and the web app `https://app.protohq.design`;
+`PROTOHQ_API_URL=https://staging-api.protohq.design` targets staging. Self-hosted server exports and the former Cloudflare
 sharing commands are removed; hosted review is operated by Proto.
 
 ## Documentation
@@ -287,7 +365,10 @@ dependency · `4` remote or auth.
 | Command                                                    | What it does                                                     |
 | ---------------------------------------------------------- | ---------------------------------------------------------------- |
 | `proto init [--skills]`                                    | Scaffold the app; `--skills` installs or updates agent skills    |
-| `proto dev [--port 4400] [--open]`                         | Gallery on `port`, render origin on `port + 1`                   |
+| `proto dev [--open]`                                       | Project gallery at the shared Proto address                      |
+| `proto start`                                              | Start Proto in the background; idempotent                        |
+| `proto stop`                                               | Stop Proto; project terminals wait and reconnect                 |
+| `proto status`                                             | Inspect Proto and known projects without starting anything       |
 | `proto build`                                              | Read-only `dist-proto/`; `--remote` builds for the review server |
 | `proto list`                                               | Prototypes and flows                                             |
 | `proto check`                                              | Problems and warnings, network guard, no-write render build      |
@@ -334,11 +415,10 @@ export default defineProtoConfig({
 | `guards.productionBoundary`   | `true`                 | Fail the app build when prototype or gallery code reaches it                 |
 | `evidence.dir`                | `"docs/design"`        | Where screenshots and evidence are written                                   |
 | `build.includeReview`         | `false`                | Ship review history in static builds                                         |
-| `dev.port`                    | `4400`                 | Gallery port; the render origin is `port + 1`                                |
 | `dev.poll`                    | `false`                | Polling file watcher                                                         |
-| `dev.allowedHosts`            | `[]`                   | Extra hostnames (without ports); each server adds its own port               |
+| `dev.allowedHosts`            | `[]`                   | Extra hostnames (without ports) for this project's URLs                      |
 
-Environment: `PROTOHQ_PORT`, `PROTOHQ_POLL=1`, `PROTOHQ_TOKEN`, `PROTOHQ_WORKSPACE`, `PROTOHQ_API_URL` (loopback only).
+Environment: `PROTOHQ_PORT` (Proto port, default `4400`, remembered after use), `PROTOHQ_POLL=1`, `PROTOHQ_TOKEN`, `PROTOHQ_WORKSPACE`, `PROTOHQ_API_URL` (loopback, or exactly `https://staging-api.protohq.design` for staging).
 
 ## Package entries
 
@@ -400,11 +480,11 @@ In the Components tree, clicking the selected component toggles its stories. Cli
 component (including the parent of an open story) opens its component page and expands it.
 Deep links and navigation to another component reveal the target.
 
-| CLI                      | Options/result                                                                                                                       |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `proto stories list`     | `--root`, `--filter` on story ids, `--json`; no config prints `No stories configured.` (exit 0)                                      |
-| `proto stories run`      | `--root`, `--filter`, `--theme light\|dark`, `--concurrency` (6), `--timeout` in ms (30000, clamped 1000–120000), `--port`, `--json` |
-| `proto stories url <id>` | Gallery URL `/?c=<component>&story=<id>`                                                                                             |
+| CLI                      | Options/result                                                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `proto stories list`     | `--root`, `--filter` on story ids, `--json`; no config prints `No stories configured.` (exit 0)                            |
+| `proto stories run`      | `--root`, `--filter`, `--theme light\|dark`, `--concurrency` (6), `--timeout` in ms (30000, clamped 1000–120000), `--json` |
+| `proto stories url <id>` | Gallery URL `/p/<label>/?c=<component>&story=<id>`                                                                         |
 
 Run JSON contains `summary: { total, passed, failed }` and `stories` rows with `id`, `root`,
 `stage` (`import`, `load`, `render`, `play`), `status`, `hasPlay`, `durationMs` and `error`.
@@ -425,11 +505,12 @@ its error. Waits inside the story, such as a `play` `waitFor` timeout, are not e
 Browser loss fails affected stories at their last stage; one shared relaunch
 attempt per lost browser lets remaining stories continue. A failed relaunch is reported on
 remaining rows without repeatedly launching Chromium.
-Only selected roots start. Existing servers are reused only after a `projectId` match;
+Only selected roots start for a temporary run. A ready project server is reused through its project
+lock and verified server instance;
 interrupt closes owned servers/browser and emits no partial report.
 
 MCP exposes `proto_stories_list({ root?, filter? })`,
-`proto_stories_run({ root?, filter?, theme?, concurrency?, timeout?, port? })` (root or filter
+`proto_stories_run({ root?, filter?, theme?, concurrency?, timeout? })` (root or filter
 required) and `proto_stories_url({ id })`, returning the same JSON as the CLI.
 
 Story comments use `story--<component slug>`. `comments add` requires `--state <story-id>` from
@@ -477,8 +558,7 @@ A hard-coded `/vendor/emojibase/...` or `/fonts/...` requests the gallery origin
 these assets at the gallery root or rewrite string URLs in consumer code.
 
 Errors: `invalid_input` (exit 2) for unknown roots or missing/invalid comment state;
-`story_not_found` (1) for unknown ids/empty filters; `project_mismatch` (1) for a different
-project on the requested port; `port_in_use` (1); `playwright_missing`, `storybook_missing`
+`story_not_found` (1) for unknown ids/empty filters; `project_offline` (1) if the project stops during a run; `port_in_use` (1); `playwright_missing`, `storybook_missing`
 and `storybook_unsupported` (3). Story index problems include `story_parse`,
 `story_id_duplicate`, `story_slug_duplicate`, `story_slug_invalid`, `story_preview_missing`;
 warnings include `story_mock_unsupported`, `story_title_dynamic`, `story_glob_empty`.
