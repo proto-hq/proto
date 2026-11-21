@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v0.2.1
+
+### Fixes
+
+- The npm package page now links to the `proto-hq/proto` repository for source, issues and docs.
+
 ## v0.2.0
 
 ### Features
