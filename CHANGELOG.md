@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## v0.2.2
+
+### Interactive account requirement
+
+- Free still runs locally, but `dev`, `start`, `init` and `mcp` now require a free account via
+  `proto login` (Google, GitHub or an email link). Other local headless commands and integrations
+  remain login-free. Runners that do not export `CI` must set `CI=1` or provide `PROTOHQ_TOKEN`.
+- The bounded session probe sends CLI headers (version, platform/architecture, device kind and
+  hostname in `User-Agent`) to the Proto API. Stored sessions work offline; only explicit
+  credential rejection blocks interactive use. `proto mcp --json` startup errors use stderr
+  to preserve its JSON-RPC stdout stream.
+
 ## v0.2.1
 
 ### Fixes

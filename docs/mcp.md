@@ -2,6 +2,9 @@
 
 For a local checkout, install the optional `@modelcontextprotocol/sdk` peer and configure your
 client to run `proto mcp --app <dir>` in the project directory. Stdout is reserved for MCP.
+Free still runs locally, but starting the interactive stdio server requires a free account from
+`proto login` (Google, GitHub or an email link). CI is exempt; stored sessions work offline.
+Login failures exit nonzero and write only to stderr; `--json` writes the JSON error envelope there.
 The [command catalog](commands.md) lists local tools. Store tools accept `remote: true` and an
 explicit `share` after CLI login.
 

@@ -1,5 +1,16 @@
 # Setup, configuration and guards
 
+Free still runs locally, including authoring, review and static builds. Interactive commands
+(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
+and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
+to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
+session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
+explicit credential rejection in another 4xx response requires replacing credentials; all other
+responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
+`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
+(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
+account and plan requirements.
+
 Contents: install · `proto init` · `proto.config.ts` · guards · Vite, Storybook and Vitest ·
 the render origin · agent skills.
 
@@ -9,6 +20,7 @@ Proto needs a React 19 + Vite 8 app and uses the app's own Vite and React instal
 
 ```sh
 bun add -d @protohq/cli     # or npm i -D / pnpm add -D
+bunx proto login             # Google, GitHub or email; free account
 bunx proto init --skills      # from the app directory, or pass --app <dir>
 bunx proto dev --open
 ```

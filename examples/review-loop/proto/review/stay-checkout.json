@@ -1,0 +1,79 @@
+{
+  "version": 3,
+  "key": "stay-checkout",
+  "sequence": 1,
+  "review": {
+    "status": "approved",
+    "updatedAt": "2026-11-22T22:25:37.264Z"
+  },
+  "events": [
+    {
+      "id": "498e6cba-7375-441b-890c-768e033963fa",
+      "type": "approved",
+      "at": "2026-11-22T22:25:37.264Z",
+      "author": "reviewer",
+      "commit": "99fbfb34d278d8a88f69a791afaae44bd49099e8",
+      "openCount": 0
+    }
+  ],
+  "comments": [
+    {
+      "id": "stay-checkout-1",
+      "slug": "stay-checkout",
+      "status": "resolved",
+      "createdAt": "2026-11-22T22:25:23.227Z",
+      "updatedAt": "2026-11-22T22:25:34.683Z",
+      "resolvedAt": "2026-11-22T22:25:34.683Z",
+      "context": {
+        "commit": "99fbfb34d278d8a88f69a791afaae44bd49099e8",
+        "state": "ready",
+        "theme": null,
+        "role": null,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "target": {
+        "kind": "element",
+        "selector": ".sol-primary-btn",
+        "testId": null,
+        "tag": "",
+        "text": "",
+        "source": null,
+        "sourceChain": [],
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "rectNormalized": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "offset": null
+      },
+      "thread": [
+        {
+          "id": "4f47ca9e-5317-4c92-92cc-fab753302561",
+          "at": "2026-11-22T22:25:23.233Z",
+          "editedAt": null,
+          "body": "Show the 48h free cancellation note right above the Reserve button so guests see it before paying.",
+          "author": "reviewer",
+          "attachments": []
+        },
+        {
+          "id": "eb7854d9-4eef-4df6-afe5-dd40629e044e",
+          "at": "2026-11-22T22:25:30.732Z",
+          "editedAt": null,
+          "body": "Moved the 48h free cancellation copy directly above Reserve stay in src/components/stay-checkout.tsx and verified desktop + 390px mobile.",
+          "author": "agent",
+          "attachments": []
+        }
+      ]
+    }
+  ]
+}

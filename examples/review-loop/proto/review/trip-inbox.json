@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "key": "trip-inbox",
+  "sequence": 1,
+  "review": {
+    "status": "in_review",
+    "updatedAt": null
+  },
+  "events": [],
+  "comments": [
+    {
+      "id": "trip-inbox-1",
+      "slug": "trip-inbox",
+      "status": "open",
+      "createdAt": "2026-11-22T22:25:23.468Z",
+      "updatedAt": "2026-11-22T22:25:23.468Z",
+      "resolvedAt": null,
+      "context": {
+        "commit": "99fbfb34d278d8a88f69a791afaae44bd49099e8",
+        "state": "host-request",
+        "theme": null,
+        "role": null,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "target": {
+        "kind": "element",
+        "selector": ".sol-primary-btn",
+        "testId": null,
+        "tag": "",
+        "text": "",
+        "source": null,
+        "sourceChain": [],
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "rectNormalized": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "offset": null
+      },
+      "thread": [
+        {
+          "id": "16a962b9-8bd8-4076-97c5-a81dceaeac3e",
+          "at": "2026-11-22T22:25:23.473Z",
+          "editedAt": null,
+          "body": "Keep Accept reservation primary and place Decline as a quiet secondary action beside it.",
+          "author": "reviewer",
+          "attachments": []
+        }
+      ]
+    }
+  ]
+}

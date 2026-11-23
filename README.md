@@ -21,7 +21,15 @@ source chain of what was clicked, so a coding agent can open the exact line, fix
 through the CLI or MCP. Agents never approve; people do.
 
 <!-- screenshots (absolute URLs: npm does not resolve repository paths) -->
-<!-- The review shell: overview, screen view with pinned comments, flow canvas. -->
+<p align="center">
+  <img alt="Proto gallery overview showing specs, flows and live prototype thumbnails" src="https://raw.githubusercontent.com/proto-hq/proto/main/docs/assets/overview.webp" width="100%">
+</p>
+<p align="center">
+  <img alt="Proto screen view with anchored review comment thread and agent reply" src="https://raw.githubusercontent.com/proto-hq/proto/main/docs/assets/screen-comments.webp" width="100%">
+</p>
+<p align="center">
+  <img alt="Proto flow canvas connecting prototype states into a user journey" src="https://raw.githubusercontent.com/proto-hq/proto/main/docs/assets/flow-canvas.webp" width="100%">
+</p>
 <!-- /screenshots -->
 
 > [!WARNING]
@@ -70,6 +78,7 @@ in the consumer before adding Proto.
 
 ```sh
 bun add -d @protohq/cli
+bunx proto login             # Google, GitHub or email; free account
 bunx proto init --skills
 bunx proto dev --open
 ```
@@ -290,8 +299,16 @@ your code), written under a per-key lock so the CLI, MCP and the dev server can 
 
 ## Hosted review
 
-Free includes local authoring, review and static builds. Local CLI commands and the local
-`proto mcp` server run without login or requests to Proto Cloud. Proto collects no telemetry.
+Free still runs locally, including authoring, review and static builds. Interactive commands
+(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
+and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
+to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
+session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
+explicit credential rejection in another 4xx response requires replacing credentials; all other
+responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
+`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
+(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
+account and plan requirements.
 
 Pro adds hosted collaboration for **US$15/month per Editor seat**, or **US$12/month per Editor
 seat billed yearly (US$144/year)**, plus any tax Stripe Tax adds at checkout. A Free workspace's

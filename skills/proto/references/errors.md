@@ -39,6 +39,7 @@ Generated from the shipped registry. A dash means the transport does not assign 
 | legal_required           | —        | 403  | Accept the current legal documents to continue.                                                             |
 | legal_version_mismatch   | —        | 409  | The legal documents have changed. Reload and try again.                                                     |
 | legal_unpublished        | —        | 503  | Sign-up opens soon.                                                                                         |
+| account_changed          | —        | 409  | This browser is signed in to another account now. Reload and try again.                                     |
 | rate_limited             | —        | 429  | Too many requests. Try again later.                                                                         |
 | request_resolved         | —        | 409  | This access request has already been resolved.                                                              |
 | billing_unavailable      | —        | 503  | Billing is unavailable. Retry.                                                                              |

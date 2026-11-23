@@ -1,27 +1,85 @@
 Proto End User License Agreement
-Version: 2026-11-19
+Version: 2026-11-23
 
-Copyright (c) 2026 Proto HQ. All rights reserved.
+Copyright (c) 2026 Compozy LLC. All rights reserved.
 
-You are granted a non-exclusive, non-transferable license to install and use Proto
-for local prototype authoring, previewing, building and review, free of charge,
-including for commercial projects. You retain ownership of your own components,
-prototypes and output. Hosted services require a separate subscription
-and are subject to their service terms.
+This End User License Agreement ("EULA") is an agreement between you and
+Compozy LLC, 2261 Market Street, San Francisco, CA 94114, USA, the maker of
+Proto. It covers the Proto command-line tool published as the @protohq/cli
+package, with the files, agent skills and documentation that ship with it (the
+"Software"). By installing or using the Software you accept this EULA. If you
+accept it for an organization, you confirm that you may bind that organization,
+and the license then also covers its employees and contractors working for it.
 
-You may not redistribute, sublicense, sell, copy for redistribution, modify, or
-create derivative products from the Software, or reverse engineer, decompile or
-disassemble it, except to the extent applicable law expressly permits despite
-this restriction. No rights to the Software are granted except those stated here.
+License. You are granted a non-exclusive, non-transferable license to install
+and use Proto for local prototype authoring, previewing, building and review,
+free of charge, including for commercial projects. You may make the copies you
+need for that use inside your organization, including in CI systems, container
+images and internal package mirrors, as long as those copies are not available
+to the public.
+
+Your work. You retain ownership of your own components, prototypes and output.
+You may host and share the output of proto build, including the Proto runtime
+files it contains, to present and review your own prototypes; you may not
+extract those runtime files to use them apart from that output. You may copy
+and adapt the documentation, agent skills, configuration schema, type
+declarations and examples that ship with the Software into your own projects.
+
+Restrictions. You may not redistribute, sublicense, sell, copy for
+redistribution, modify, or create derivative products from the Software, or
+reverse engineer, decompile or disassemble it, except to the extent applicable
+law expressly permits despite this restriction, and except as the section
+above allows. No rights to the Software are granted except those stated here.
+Compozy LLC and its licensors own the Software. This EULA is a license, not a
+sale.
+
+Proto account and Proto Cloud. The interactive commands of the Software
+(proto dev, proto start, proto init and proto mcp) require a free Proto
+account and check that you are signed in. Commands meant for CI and scripts do
+not. Proto Cloud, the hosted service that includes the web app, hosted shares,
+hosted review and the remote MCP server, is a separate service governed by the
+Proto Terms of Use (https://protohq.design/legal/terms/) and the Proto Privacy
+Policy (https://protohq.design/legal/privacy/). Those terms also apply when
+the Software contacts Proto Cloud, for example to sign in, to check sign-in,
+to publish a share or to run a command with --remote. Hosted features require
+a paid Pro subscription.
+
+Data. The Software collects no telemetry or analytics. The sign-in check sends
+your sign-in token and the device details described in the Privacy Policy, and
+nothing about your projects or files. Commands that use Proto Cloud send the
+data described in the Privacy Policy. Everything else the Software does stays
+on your machine.
 
 Third-party components remain subject to their respective licenses, reproduced
 in the package’s THIRD_PARTY_NOTICES.md. This agreement does not restrict those rights.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE AUTHORS SHALL NOT
-BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE
-OR ITS USE.
+NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, Compozy LLC AND ITS
+SUPPLIERS SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM THE SOFTWARE OR ITS USE, INCLUDING ANY INDIRECT, INCIDENTAL, SPECIAL,
+CONSEQUENTIAL OR PUNITIVE DAMAGES AND ANY LOSS OF PROFITS, REVENUE, DATA OR
+GOODWILL. WHERE THE LAW DOES NOT ALLOW THAT EXCLUSION, THEIR TOTAL LIABILITY
+ARISING FROM THE SOFTWARE IS LIMITED TO ONE HUNDRED US DOLLARS (US$100).
+
+Export. You may not use, export or re-export the Software in breach of United
+States export control or sanctions laws, or of the laws that apply to you, or
+for anyone on a United States sanctions list or in a country or region subject
+to comprehensive United States sanctions.
+
+Changes. Each release of the Software is licensed under the EULA it ships
+with. A newer version of this EULA applies when you install or update to a
+release that includes it.
 
 This license terminates if you breach its terms. On termination, stop using and
-delete your copies of the Software.
+delete your copies of the Software. The sections on ownership, restrictions,
+warranty, liability, export and governing law survive termination.
+
+Governing law. This EULA is governed by the laws of the State of California,
+without regard to its conflict of laws rules. The state and federal courts
+located in San Francisco County, California have exclusive jurisdiction over
+any dispute arising from it, and you and Compozy LLC consent to their
+jurisdiction. If this EULA and the Proto Terms of Use conflict, this EULA
+governs the Software on your machine and the Terms of Use govern Proto Cloud.
+
+Questions about this EULA: support@protohq.design.

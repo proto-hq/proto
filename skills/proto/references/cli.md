@@ -9,7 +9,8 @@ proto <command> [positionals] [options] [--json] [--app <dir>] [--verbose]
 ```
 
 - `--json` prints exactly one JSON value on stdout, which is the contract. Human output is for
-  people and may change.
+  people and may change. Exception: `proto mcp --json` startup failures write the JSON error
+  envelope to stderr and leave stdout empty, because stdout belongs to JSON-RPC.
 - App selection: `--app <dir>` (relative to the working directory, or `apps/<dir>`). Without it,
   the CLI walks up to the nearest `proto.config.ts`, then tries a single `apps/*/proto.config.ts`.
   Several candidates fail with `app_required`.
@@ -19,6 +20,25 @@ proto <command> [positionals] [options] [--json] [--app <dir>] [--verbose]
   `dist-proto` path.
 - `--remote` works only on the comment and review commands and on `url`. Every other command
   exits 2 with `This command does not support --remote`.
+
+Free still runs locally, including authoring, review and static builds. Interactive commands
+(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
+and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
+to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
+session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
+explicit credential rejection in another 4xx response requires replacing credentials; all other
+responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
+`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
+(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
+account and plan requirements.
+
+Runners that do not export `CI` must set `CI=1` or provide `PROTOHQ_TOKEN` when invoking
+interactive commands. The session probe sends the normal CLI headers to the Proto API:
+version, platform/architecture, device kind, and hostname in `User-Agent`.
+
+The probe checks account identity without an `X-Proto-Workspace` header. A rejected environment
+token must be unset or replaced; `proto login` does not override `PROTOHQ_TOKEN`. If the stored
+credentials file is corrupt, its error names the path and `proto login` replaces it after approval.
 
 ## Commands
 

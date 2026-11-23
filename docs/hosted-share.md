@@ -1,11 +1,27 @@
 # Hosted operations
 
+Free still runs locally, including authoring, review and static builds. Interactive commands
+(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
+and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
+to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
+session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
+explicit credential rejection in another 4xx response requires replacing credentials; all other
+responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
+`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
+(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
+account and plan requirements.
+
 Local authoring and review work offline. Hosted publishing requires a signed-in Editor and a
 Pro workspace. Run `proto login`, `proto whoami`, `proto workspace list`, then
 `proto workspace use <slug>`. `proto logout` removes the CLI session.
 
 Publish exactly one target: `proto share <slug>`, `proto share --flow <id>`, or `proto share --all`.
 Optional repeated `--viewer`, `--commenter`, and `--approver` flags take email addresses.
+During `proto login`, finish Google/GitHub or email sign-in and accept the terms in the browser
+before approving the device. The browser returns to the same device code after acceptance. If
+polling reports `legal_required`, the CLI names that browser page and asks you to retry login
+once acceptance is complete; no credential is saved for the refused attempt.
+
 Use `--app <dir>` to select the app and `--json` for structured output. On a Free workspace,
 `proto share` answers `plan_required` with the workspace's upgrade URL and changes nothing.
 Snapshots persist after the command exits.
