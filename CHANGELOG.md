@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+## v0.2.3
+
+### Help and first run
+
+- `proto --help` groups commands, and `proto <command> --help` shows that command's arguments,
+  options and docs link. `--json` returns help and version output as JSON.
+- Running a command outside a Proto app reports `not_initialized` with the `proto init` or
+  `--app <dir>` fix. Invalid config errors name their cause, and JSON errors no longer contain
+  terminal color codes.
+- Install hints for Playwright and Chromium, and the `proto init` and `proto login` recovery
+  commands, use your package manager (npm, pnpm, Yarn or Bun).
+- `proto new` without a valid target shows both usage forms. `proto logout` succeeds when you are
+  already signed out.
+
+### Login and sharing
+
+- `proto login` honors the API's retry wait and backs off on rate limits. It reports
+  `rate_limited` with `retryAfterSeconds`, `service_unavailable` for persistent server errors,
+  `network_unavailable` for connection failures, and `login_interrupted` when a login may have
+  completed during an outage.
+- `proto share` retries a busy publish up to three times within 60 seconds, printing one progress
+  line per wait on stderr. It reports `publish_busy` if the window runs out. `--json` output stays
+  one JSON document.
+- Seat changes that Stripe is still confirming report `billing_update_pending`.
+
+### Fixes
+
+- `--json` output stays clean when Vite plugins log to stdout; their logs go to stderr.
+- `proto dev` refreshes Tailwind CSS when prototype or draft files are added or removed.
+- Screenshots and share captures wait for animations and transitions to finish.
+
 ## v0.2.2
 
 ### Interactive account requirement
