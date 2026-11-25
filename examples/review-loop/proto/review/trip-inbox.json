@@ -11,10 +11,10 @@
     {
       "id": "trip-inbox-1",
       "slug": "trip-inbox",
-      "status": "open",
+      "status": "resolved",
       "createdAt": "2026-11-22T22:25:23.468Z",
-      "updatedAt": "2026-11-22T22:25:23.468Z",
-      "resolvedAt": null,
+      "updatedAt": "2026-11-25T02:32:23.582Z",
+      "resolvedAt": "2026-11-25T02:32:23.582Z",
       "context": {
         "commit": "99fbfb34d278d8a88f69a791afaae44bd49099e8",
         "state": "host-request",
@@ -54,6 +54,14 @@
           "editedAt": null,
           "body": "Keep Accept reservation primary and place Decline as a quiet secondary action beside it.",
           "author": "reviewer",
+          "attachments": []
+        },
+        {
+          "id": "f8eaa1b4-efd9-4c7e-8524-078cc7420258",
+          "at": "2026-11-25T02:32:23.582Z",
+          "editedAt": null,
+          "body": "Verified that Accept reservation is primary and Decline is secondary.",
+          "author": "agent",
           "attachments": []
         }
       ]

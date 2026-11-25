@@ -15,7 +15,10 @@ proto <command> [positionals] [options] [--json] [--app <dir>] [--verbose]
   the CLI walks up to the nearest `proto.config.ts`, then tries a single `apps/*/proto.config.ts`.
   Several candidates fail with `app_required`.
 - Unknown flags, missing flag values and extra positionals exit 2.
-- `proto --help` lists the commands, and `proto --version` prints the installed version.
+- `proto --help`, `proto -h` and `proto help` list the commands. Add `--help` or `-h` after a
+  command, or run `proto help dev` for the usage, arguments, flags, and defaults of a command.
+  With `--json`, command help returns `{ command, summary, usage, arguments, options }`.
+- `proto version` and `proto --version` print the installed version. Add `--json` for `{ version }`.
 - Paths in output are app-relative, except `proto build`, which returns the absolute
   `dist-proto` path.
 - `--remote` works only on the comment and review commands and on `url`. Every other command
@@ -201,12 +204,17 @@ See `troubleshooting.md` and the generated `errors.md` for exact recovery and me
 | ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0    | ok (warnings allowed)       |                                                                                                                                                                                                                                                                                              |
 | 1    | problems or user error      | `invalid_config`, `slug_taken`, `comment_not_found`, `message_not_owned`, `invalid_source`, `port_in_use`, `daemon_unavailable`, `daemon_version_mismatch`, `state_unavailable`, `project_busy`, `project_offline`, `not_a_vite_app`, `key_busy`, `attachment_*`, `review_has_open_comments` |
+| 1    | project setup               | `not_initialized`                                                                                                                                                                                                                                                                            |
 | 2    | usage                       | unknown command or flag, a missing required argument (`selector is required`), `app_required`                                                                                                                                                                                                |
 | 3    | missing optional dependency | `playwright_missing`; the MCP SDK for `proto mcp`                                                                                                                                                                                                                                            |
-| 4    | remote or auth              | `not_logged_in`, `auth_required`, `invalid_credential`, `scope_denied`, `plan_required`, `seat_required`, `cli_outdated`                                                                                                                                                                     |
+| 4    | remote or auth              | `not_logged_in`, `auth_required`, `invalid_credential`, `service_unavailable`, `scope_denied`, `plan_required`, `seat_required`, `cli_outdated`                                                                                                                                              |
 
 Errors print `{ "error": { "code", "message", ... } }` with `--json`. Usage errors have only a
 `message`. `key_busy` means another writer holds the review lock; retry.
+
+For `proto login --json`, `rate_limited` includes `retryAfterSeconds` in the error object.
+`login_interrupted` means a token exchange may have completed during a timeout or outage. Run
+`proto login` again.
 
 ## MCP
 

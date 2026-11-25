@@ -26,11 +26,15 @@ Use `--app <dir>` to select the app and `--json` for structured output. On a Fre
 `proto share` answers `plan_required` with the workspace's upgrade URL and changes nothing.
 Snapshots persist after the command exits.
 
+On a busy response (HTTP 429 or 503), the CLI makes up to three attempts at the final publish
+request. It honors `Retry-After` with jitter and starts retries within 60 seconds. An attempt already
+in progress can finish after that window. Upload creation and blob PUTs are sent once.
+
 Publish with `--note "Ready for review"` to attach a 1–280 character version note. Proto captures
 up to 60 light-theme 640×400 WebP previews in registry order and uses the first as the cover.
 Use `--no-captures` to skip screenshots. If Playwright is missing, publishing continues and
-prints "Thumbnails need Playwright: npm i -D playwright" on stderr. If Chromium is missing,
-it prints "Thumbnails need Chromium: npx playwright install chromium". Capture allows 15 seconds
+prints the Playwright package install command on stderr. If Chromium is missing, it prints
+the browser install command. Both use the detected package manager. Capture allows 15 seconds
 per state and 120 seconds overall. Failed and timed-out captures are skipped with one warning.
 Publish JSON adds `captures` (the stored capture count) and `note` (the version note or null).
 An unchanged snapshot keeps its stored thumbnails and note.

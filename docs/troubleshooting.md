@@ -48,7 +48,8 @@ Start by running `proto status --json` (it starts nothing) and inspecting `~/.co
 ## Storybook, Vitest, and optional peers
 
 - **`production_boundary` during `storybook build`**: Storybook loaded `vite.config.ts` which includes `proto()`. Extract shared React/Tailwind/alias settings into `vite.shared.ts`, point Storybook's `viteConfigPath` at it, and add `protoPresentation()` in `viteFinal`.
-- **`playwright_missing`** (exit `3`): install `playwright` and run `bunx playwright install chromium`. Re-run browser installation after upgrading Playwright.
+- **`not_initialized`** (exit `1`): run `proto init` in the app directory, or pass `--app <dir>` to use an app that already has a `proto.config.ts`.
+- **`playwright_missing`** (exit `3`): install the Playwright package if needed and install Chromium. Proto prints commands for your package manager. Re-run browser installation after upgrading Playwright.
 - **Legacy `0.1.x` skills**: run `proto init --skills` to install the current `proto` and `proto-apply-comments` skills, then remove any `author-prototype` or `apply-prototype-comments` folders reported under `legacySkills`.
 
 See the [error registry](errors.md) for every code and exit status, and the [troubleshooting skill reference](../skills/proto/references/troubleshooting.md) for agent-specific recovery steps.

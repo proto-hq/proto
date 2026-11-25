@@ -4,21 +4,36 @@ Walk through a complete design-and-engineering review loop on **Solstice**, the 
 
 ## 1. Run the Solstice example
 
-Clone the public repository and start the example gallery:
+Clone the public repository and open the example directory.
 
 ```sh
 git clone https://github.com/proto-hq/proto.git
 cd proto/examples/review-loop
+```
+
+**npm**
+
+```sh
+npm install
+npx proto login
+npx proto dev --open
+```
+
+**Bun**
+
+```sh
 bun install
 bunx proto login
 bunx proto dev --open
 ```
 
+If you use npm, replace `bunx` with `npx` throughout this tutorial.
+
 `proto dev` starts the shared local Proto server (default port `4400`) and prints the project address:
 
 ```console
 Started Proto in the background. Stop it with: proto stop
-Proto    http://127.0.0.1:4400/p/review-loop/
+Proto    http://127.0.0.1:4400/p/solstice/
 Home     http://127.0.0.1:4400/
 ```
 
@@ -28,7 +43,10 @@ The overview lists the **Booking & stays** spec (`booking`), two component proto
 
 ## 2. Inspect how prototypes compose real views
 
-Open `src/components/stay-checkout.proto.tsx`. Instead of copying markup into a throwaway sandbox, the prototype imports the production `StayCheckout` view and drives its states (`ready`, `member-discount`, `loading`, `card-error`, `confirmed`) through fixture props from `stay-checkout.fixtures.ts`.
+Open `src/components/stay-checkout.proto.tsx`. The prototype imports the production
+`StayCheckout` view and drives its seven states through fixture props from
+`stay-checkout.fixtures.ts`: `ready`, `member-discount`, `loading`, `card-error`,
+`confirmed`, `empty` and `mobile`.
 
 `proto.config.ts` declares the spec, preview roles (`guest`, `member`, `host`), and the network guard:
 
@@ -57,7 +75,9 @@ Because `src/lib/api.ts` is listed in `guards.forbidRuntimeImports`, `proto chec
 
 ## 3. Walk the booking flow
 
-Click **Stay booking** in the sidebar to open `flows/booking.flow.ts`. The canvas connects six prototype states — from `ready` and `member-discount` through `loading`, `card-error`, `confirmed`, and the terminal `trip-inbox` screen — with live previews at every step.
+Click **Stay booking** under **Journeys** in the overview. The canvas for `flows/booking.flow.ts`
+connects six steps, from `ready` and `member-discount` through `loading`, `card-error` and
+`confirmed` to the `upcoming` state of **Trip inbox**. Each step has a live preview.
 
 ![Proto flow canvas showing the Solstice Stay booking journey with live prototype nodes](assets/flow-canvas.webp)
 
@@ -69,11 +89,18 @@ bunx proto flow coverage
 bunx proto check
 ```
 
-## 4. Pin a comment in the browser
+The example has five states outside the booking flow. Coverage lists them and `proto check` reports
+five warnings and zero problems.
 
-Open **Stay checkout** (`stay-checkout`), switch states, themes, roles, or viewport widths in the top bar, and press **C** to enter comment mode. Click any element (or drag a region) and leave a note.
+## 4. Inspect the pinned comment
 
-Proto records the CSS selector, bounding rectangle, active state, theme, role, viewport size, Git commit, and the exact JSX source chain (`file:line:column`) of the clicked component, storing it in `proto/review/stay-checkout.json`.
+From **Booking & stays**, open **Stay checkout** (`stay-checkout`) in its default **Ready to
+reserve** state. In **Comments**, open the thread asking to move the 48-hour free cancellation
+note above **Reserve stay**. The screen starts **In review** with this thread open.
+
+When a reviewer pins a comment, Proto records the CSS selector, bounding rectangle, active
+state, theme, role, viewport size, Git commit and the JSX source chain (`file:line:column`).
+This pin is stored in `proto/review/stay-checkout.json`.
 
 ![Proto screen view showing an anchored review comment thread and agent reply on Solstice](assets/screen-comments.webp)
 
@@ -82,14 +109,19 @@ Proto records the CSS selector, bounding rectangle, active state, theme, role, v
 A coding agent — or a developer working in the terminal — reads open comments as structured JSON without opening a browser:
 
 ```sh
-bunx proto comments list --json
+bunx proto comments list --slug stay-checkout --json
 bunx proto comments show stay-checkout-1 --json
 ```
 
-Each comment's `target.source` and `target.sourceChain` point straight to the component line (for example `src/components/stay-checkout.tsx:108:11`). After updating the production view and running `bunx proto check`, reply and resolve the thread:
+In the shipped example, the pin's `target.source` points to
+`src/components/stay-checkout.tsx:304:17`, the opening tag of the **Reserve stay** button.
+`target.sourceChain` also shows the enclosing JSX and the prototype that rendered the view.
+
+Move the free-cancellation sentence from the checkout subheading into a paragraph immediately
+above the button. Run `bunx proto check`, then reply and resolve the thread.
 
 ```sh
-bunx proto comments resolve stay-checkout-1 --note "Moved total breakdown above the Reserve button." --json
+bunx proto comments resolve stay-checkout-1 --note "Moved the 48-hour free cancellation note above Reserve stay." --json
 ```
 
 If you connect an agent through [`proto mcp`](mcp.md), the same actions run through `proto_comments_list`, `proto_comments_show`, `proto_comments_reply`, and `proto_comments_resolve`.
@@ -98,7 +130,9 @@ If you connect an agent through [`proto mcp`](mcp.md), the same actions run thro
 
 Agents can reply, attach screenshots, and resolve threads, but **agents never approve** — approval is intentionally omitted from MCP. Once you have checked the updated screen in the browser, click **Approve** in the gallery header (or run `bunx proto review approve stay-checkout`).
 
-If another comment arrives later, the screen automatically returns to **In review** so nothing ships silently.
+Try this by selecting the **Comment** tool, clicking an element or dragging a region, then
+posting a note. You can also press **C**, move the crosshair with the arrow keys and press
+**Enter** to pick an element. A new comment returns the screen to **In review** automatically.
 
 ## Where to go next
 

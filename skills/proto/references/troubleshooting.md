@@ -149,7 +149,7 @@ forms; `dev` emits one stdout JSON line and sends subsequent updates to stderr.
 ## Installing and upgrading
 
 - **`playwright_missing`** (exit 3): `playwright` cannot be imported or Chromium cannot launch.
-  Install the peer and run `bunx playwright install chromium`. Each Playwright version needs its
+  Use the printed commands to install the peer and Chromium. Each Playwright version needs its
   own browser build, so run it again after changing versions.
 - **An unmet peer warning for `playwright`**: the peer range is `^1.64.0`, but capture only uses
   long-stable Playwright APIs, and projects run it on `1.63.0`. The warning alone is not a
@@ -164,4 +164,5 @@ forms; `dev` emits one stdout JSON line and sends subsequent updates to stderr.
   current ones and lists the legacy directories under `legacySkills`; delete them, and their
   `.claude/skills/` links.
 - **`not_a_vite_app`**: run `init` in the app directory, or pass `--app <dir>`.
+- **`not_initialized`**: run `proto init` in the app, or pass `--app <dir>` to select an initialized app.
 - **`app_required`**: several `apps/*/proto.config.ts` exist; pass `--app <dir>`.

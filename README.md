@@ -76,12 +76,34 @@ through the CLI or MCP. Agents never approve; people do.
 Requires a React 19 + Vite 8 app. Proto uses the app's Vite installation; install React and Vite
 in the consumer before adding Proto.
 
+**npm**
+
+```sh
+npm i -D @protohq/cli
+npx proto login
+npx proto init --skills
+npx proto dev --open
+```
+
+**Bun**
+
 ```sh
 bun add -d @protohq/cli
-bunx proto login             # Google, GitHub or email; free account
+bunx proto login
 bunx proto init --skills
 bunx proto dev --open
 ```
+
+**pnpm**
+
+```sh
+pnpm add -D @protohq/cli
+pnpm exec proto login
+pnpm exec proto init --skills
+pnpm exec proto dev --open
+```
+
+Sign in with Google, GitHub or email to use a free Proto account.
 
 `init` writes the config, canvas, welcome draft and Vite plugin integration; `--skills` also
 installs the [agent skills](#the-review-loop). `proto --help` lists the commands; `proto --version`
@@ -89,10 +111,12 @@ prints the installed package version.
 
 Install these optional peers only for the features you use:
 
-| Feature                  | Optional peer                           | Setup                                                           |
-| ------------------------ | --------------------------------------- | --------------------------------------------------------------- |
-| Screenshots and evidence | `playwright` (`^1.64.0`)                | `bun add -d playwright` then `bunx playwright install chromium` |
-| MCP server (`proto mcp`) | `@modelcontextprotocol/sdk` (`^1.32.2`) | `bun add -d @modelcontextprotocol/sdk`                          |
+| Feature                  | Optional peer                           | Setup                                                        |
+| ------------------------ | --------------------------------------- | ------------------------------------------------------------ |
+| Screenshots and evidence | `playwright` (`^1.64.0`)                | `npm i -D playwright` then `npx playwright install chromium` |
+| MCP server (`proto mcp`) | `@modelcontextprotocol/sdk` (`^1.32.2`) | `npm i -D @modelcontextprotocol/sdk`                         |
+
+With Bun or pnpm, use the same install and command prefixes as above.
 
 The gallery, local reviews and static builds do not require these optional integrations.
 
@@ -322,8 +346,15 @@ proto workspace use <slug>
 proto share login-form
 ```
 
-Publish a prototype, `proto share --flow <id>`, or `proto share --all`. Hosted snapshots at
-`https://protohq.app` persist after the command exits. Invite reviewers with `--viewer`,
+During device login, the CLI backs off on HTTP 429 and uses the wait advertised by the API.
+If the retry window runs out, it reports `rate_limited` and the wait in seconds. Persistent
+server errors report `service_unavailable` and link to the Proto status page. Connection
+failures or timeouts alone report `network_unavailable`. If a token exchange may have completed
+during an outage, the CLI reports `login_interrupted` and asks you to start a new login.
+`proto login --json` returns these codes in the standard error envelope.
+
+Publish a prototype, `proto share --flow <id>`, or `proto share --all`. Shares open at
+`https://app.protohq.design/s/<workspace>/<slug>` and their snapshots persist after the command exits. Invite reviewers with `--viewer`,
 `--commenter` or `--approver`; use `proto share list`, `proto share invite <slug>` and
 `proto share revoke <slug>` to manage shares. People approve in the browser; approvers need
 an Editor seat. Publishing a new version reopens an approved share.
@@ -337,9 +368,11 @@ report `network_unavailable` (exit 4). Local MCP store tools accept `remote: tru
 For hosted access without a checkout, connect an OAuth-capable Streamable HTTP MCP client to
 `https://mcp.protohq.design/mcp` and authorize the workspace in the browser. Agents never approve.
 
-The API is `https://api.protohq.design` and the web app `https://app.protohq.design`;
-`PROTOHQ_API_URL=https://staging-api.protohq.design` targets staging. Self-hosted server exports and the former Cloudflare
-sharing commands are removed; hosted review is operated by Proto.
+Proto operates hosted review at `https://app.protohq.design` with the API at
+`https://api.protohq.design`. Self-hosted server exports and the former Cloudflare sharing
+commands are removed.
+
+> **Advanced / self-testing.** Set `PROTOHQ_API_URL=https://staging-api.protohq.design` to target staging.
 
 ## Documentation
 
@@ -435,7 +468,11 @@ export default defineProtoConfig({
 | `dev.poll`                    | `false`                | Polling file watcher                                                         |
 | `dev.allowedHosts`            | `[]`                   | Extra hostnames (without ports) for this project's URLs                      |
 
-Environment: `PROTOHQ_PORT` (Proto port, default `4400`, remembered after use), `PROTOHQ_POLL=1`, `PROTOHQ_TOKEN`, `PROTOHQ_WORKSPACE`, `PROTOHQ_API_URL` (loopback, or exactly `https://staging-api.protohq.design` for staging).
+Environment overrides include `PROTOHQ_PORT` (default `4400`, remembered after use),
+`PROTOHQ_POLL=1`, `PROTOHQ_TOKEN` and `PROTOHQ_WORKSPACE`.
+
+> **Advanced / self-testing.** `PROTOHQ_API_URL` accepts a loopback URL or exactly
+> `https://staging-api.protohq.design` for staging.
 
 ## Package entries
 

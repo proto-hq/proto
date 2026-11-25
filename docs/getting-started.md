@@ -10,7 +10,19 @@ Install `@protohq/cli` in a React 19 + Vite 8 application to run the full local 
 
 ## Install and initialize
 
-Run these commands inside your app directory (or pass `--app <dir>` from a monorepo root):
+Run the commands for your package manager inside your app directory. From a monorepo root, pass
+`--app <dir>` to select the app.
+
+**npm**
+
+```sh
+npm i -D @protohq/cli
+npx proto login
+npx proto init --skills
+npx proto dev --open
+```
+
+**Bun**
 
 ```sh
 bun add -d @protohq/cli
@@ -19,24 +31,75 @@ bunx proto init --skills
 bunx proto dev --open
 ```
 
-`proto init` scaffolds five pieces without altering your production app:
+**pnpm**
+
+```sh
+pnpm add -D @protohq/cli
+pnpm exec proto login
+pnpm exec proto init --skills
+pnpm exec proto dev --open
+```
+
+`proto init` sets up the gallery alongside your production app.
 
 - `proto.config.ts` — gallery title, specs, roles, and build/network guards.
 - `proto.canvas.tsx` — exports `Canvas` (providers and app CSS) and optional `Frame` chrome.
 - `src/drafts/welcome/index.proto.tsx` — a starter draft you can open immediately.
 - `proto()` added to your `vite.config.ts` plugins array so prototype code can never leak into your production bundle.
-- `--skills` installs the `proto` and `proto-apply-comments` skills into `.agents/skills/` at the repository root.
+- `docs/design/prototyping.md` documents the local prototyping setup.
+- `proto/review/.gitignore` sets up ignore rules for local review artifacts.
+
+With `--skills`, Proto also installs the `proto` and `proto-apply-comments` skills into
+`.agents/skills/` at the repository root.
 
 Optional peer dependencies are only needed if you use those specific features:
 
-| Feature                              | Optional peer                           | Setup                                                           |
-| ------------------------------------ | --------------------------------------- | --------------------------------------------------------------- |
-| Screenshots and HTML evidence        | `playwright` (`^1.64.0`)                | `bun add -d playwright` then `bunx playwright install chromium` |
-| Local stdio MCP server (`proto mcp`) | `@modelcontextprotocol/sdk` (`^1.32.2`) | `bun add -d @modelcontextprotocol/sdk`                          |
+| Feature                              | Optional peer                           | Setup                                                        |
+| ------------------------------------ | --------------------------------------- | ------------------------------------------------------------ |
+| Screenshots and HTML evidence        | `playwright` (`^1.64.0`)                | `npm i -D playwright` then `npx playwright install chromium` |
+| Local stdio MCP server (`proto mcp`) | `@modelcontextprotocol/sdk` (`^1.32.2`) | `npm i -D @modelcontextprotocol/sdk`                         |
+
+With Bun or pnpm, use the same install and command prefixes as above.
 
 ## Write your first component prototype
 
-Place a `*.proto.tsx` file next to the production view it renders. Export a static `meta` object via `definePrototype` and a default React component that passes fixture props:
+In `proto.config.ts`, add a `booking` spec so the gallery can group the checkout prototype under
+**Booking & stays**.
+
+```ts
+import { defineProtoConfig } from "@protohq/cli/config";
+
+export default defineProtoConfig({
+  title: "Prototypes",
+  specs: { booking: "Booking & stays" },
+});
+```
+
+Create a small checkout view in `src/components/stay-checkout.tsx`.
+
+```tsx
+type StayCheckoutProps = {
+  status: "ready" | "error" | "confirmed";
+  onSubmit: () => void;
+};
+
+export function StayCheckout({ status, onSubmit }: StayCheckoutProps) {
+  if (status === "confirmed") return <p>Your stay is confirmed.</p>;
+
+  return (
+    <section>
+      <h1>Stay checkout</h1>
+      {status === "error" && <p role="alert">Your card was declined.</p>}
+      <button type="button" onClick={onSubmit}>
+        Reserve stay
+      </button>
+    </section>
+  );
+}
+```
+
+Place the prototype next to the view. Export a static `meta` object with `definePrototype` and
+a default React component that passes fixture props.
 
 ```tsx
 // src/components/stay-checkout.proto.tsx
@@ -71,9 +134,9 @@ Save the file and the gallery updates immediately at `http://127.0.0.1:4400/p/<l
 
 Run `proto check` locally or in CI before building:
 
-```sh
-bunx proto check
-```
+- **npm:** `npx proto check`
+- **Bun:** `bunx proto check`
+- **pnpm:** `pnpm exec proto check`
 
 `proto check` validates every prototype's static `meta`, verifies every flow target and edge, and enforces `guards.forbidRuntimeImports` so prototypes stay pure presentation views without hitting live backends.
 

@@ -1,9 +1,92 @@
 # MCP
 
-For a local checkout, install the optional `@modelcontextprotocol/sdk` peer and configure your
-client to run `proto mcp --app <dir>` in the project directory. Stdout is reserved for MCP.
-Free still runs locally, but starting the interactive stdio server requires a free account from
-`proto login` (Google, GitHub or an email link). CI is exempt; stored sessions work offline.
+Connect your coding agent to a local checkout over stdio or to your Proto Cloud workspace over
+OAuth and HTTP.
+
+## Connect your agent
+
+### Local checkout (stdio)
+
+Initialize the app with [Getting started](getting-started.md), install the optional MCP peer with
+`npm i -D @modelcontextprotocol/sdk` (or the equivalent for your package manager), and sign in
+with `proto login` if you have not already. Local review works on Free. Replace
+`/absolute/path/to/app` with the location of the initialized app and use your installed `proto`
+executable.
+
+**Claude Code**
+
+```sh
+claude mcp add --transport stdio proto-local -- /absolute/path/to/app/node_modules/.bin/proto mcp --app /absolute/path/to/app
+```
+
+**Codex** · Add to `~/.codex/config.toml`.
+
+```toml
+[mcp_servers.proto-local]
+command = "/absolute/path/to/app/node_modules/.bin/proto"
+args = ["mcp", "--app", "/absolute/path/to/app"]
+```
+
+**Cursor** · Add to `.cursor/mcp.json`.
+
+```json
+{
+  "mcpServers": {
+    "proto-local": {
+      "command": "/absolute/path/to/app/node_modules/.bin/proto",
+      "args": ["mcp", "--app", "/absolute/path/to/app"]
+    }
+  }
+}
+```
+
+`proto init --skills` installs `proto` and `proto-apply-comments` in `.agents/skills/` at the
+repository root. The skills teach your agent how to author prototypes and act on review feedback.
+Use the client setup above to give the agent MCP tools.
+
+### Proto Cloud (remote HTTP)
+
+Remote MCP requires a Pro workspace. Free workspaces can authorize a connection, but tool calls
+return `plan_required`.
+
+Use these settings to work with hosted reviews without a checkout. Sign in in the browser and
+authorize the workspace your agent should use.
+
+**Claude Code**
+
+```sh
+claude mcp add --transport http proto https://mcp.protohq.design/mcp
+```
+
+Run `/mcp` in Claude Code, select **proto**, then choose **Authenticate**.
+
+**Codex** · Add to `~/.codex/config.toml`.
+
+```toml
+[mcp_servers.proto]
+url = "https://mcp.protohq.design/mcp"
+```
+
+```sh
+codex mcp login proto
+```
+
+**Cursor** · Add to `.cursor/mcp.json` in the project or `~/.cursor/mcp.json` for every project.
+
+```json
+{
+  "mcpServers": {
+    "proto": { "url": "https://mcp.protohq.design/mcp" }
+  }
+}
+```
+
+Open **Cursor Settings → Tools & MCP**, find **proto**, and choose **Connect**.
+
+## Local server behavior
+
+The local server reserves stdout for MCP. Starting it interactively requires a free account from
+`proto login` (Google, GitHub or an email link). CI is exempt and stored sessions work offline.
 Login failures exit nonzero and write only to stderr; `--json` writes the JSON error envelope there.
 The [command catalog](commands.md) lists local tools. Store tools accept `remote: true` and an
 explicit `share` after CLI login.

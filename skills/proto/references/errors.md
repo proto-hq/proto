@@ -12,9 +12,11 @@ Generated from the shipped registry. A dash means the transport does not assign 
 | state_unavailable        | 1        | —    | Proto cannot use ~/.config/protohq/daemon: <reason>.                                                        |
 | daemon_version_mismatch  | 1        | —    | Proto is running a newer version than this project supports. Upgrade @protohq/cli in this project.          |
 | billing_busy             | 4        | 409  | A seat change is in progress. Try again.                                                                    |
+| billing_update_pending   | 4        | 409  | Stripe is confirming the seat change.                                                                       |
 | billing_update_failed    | 4        | 503  | Billing update failed, try again.                                                                           |
 | stripe_signature_invalid | —        | 400  | Invalid Stripe signature.                                                                                   |
 | upload_incomplete        | 4        | 409  | Some files did not upload. Rerun the command.                                                               |
+| publish_busy             | 4        | 503  | Proto publishing is busy. Try again in a minute.                                                            |
 | cli_outdated             | 4        | 426  | Update @protohq/cli to use Proto Cloud.                                                                     |
 | share_not_found          | 1        | 404  | No share with that name.                                                                                    |
 | share_access_denied      | 1        | 403  | You do not have access to this share.                                                                       |
@@ -26,6 +28,8 @@ Generated from the shipped registry. A dash means the transport does not assign 
 | plan_limit_reached       | 4        | 402  | The workspace plan limit was reached.                                                                       |
 | snapshot_too_large       | 1        | 413  | Snapshots are limited to 50 MB, 5,000 files and 10 MB per file.                                             |
 | capture_invalid          | 1        | 422  | A share thumbnail was refused; publish again with --no-captures.                                            |
+| service_unavailable      | 4        | 503  | Proto Cloud is temporarily unavailable. Check https://status.protohq.design and try again.                  |
+| login_interrupted        | 4        | —    | Login may have completed. Run proto login again.                                                            |
 | device_code_expired      | 4        | —    | The login code expired. Run proto login again.                                                              |
 | device_code_denied       | 4        | —    | The login was denied in the browser.                                                                        |
 | workspace_slug_taken     | —        | 409  | That URL is taken.                                                                                          |
@@ -68,6 +72,7 @@ Generated from the shipped registry. A dash means the transport does not assign 
 | review_has_open_comments | 1        | 409  | Open comments remain; confirm before approving.                                                             |
 | snapshot_stale           | —        | 409  | A new version is live. Reload to review it.                                                                 |
 | internal_error           | 1        | 500  | The review operation failed.                                                                                |
+| not_initialized          | 1        | —    | No proto.config.ts in <dir>. Run `proto init` (or pass --app <dir>).                                        |
 | invalid_config           | 1        | —    | proto.config.ts is invalid.                                                                                 |
 | not_a_vite_app           | 1        | —    | No Vite config found; pass --app <dir>.                                                                     |
 | app_required             | 2        | —    | Several apps found; pass --app <dir>.                                                                       |
@@ -87,10 +92,12 @@ Generated from the shipped registry. A dash means the transport does not assign 
 | scope_denied             | 4        | 403  | Approval happens in the browser; credentials cannot approve.                                                |
 | redirect_refused         | 4        | —    | The remote answered with a redirect; credentials are never re-sent.                                         |
 | schema_mismatch          | —        | 503  | The review database schema does not match; apply the server database migrations.                            |
-| playwright_missing       | 3        | —    | Playwright Chromium is not installed. Run: bunx playwright install chromium                                 |
+| playwright_missing       | 3        | —    | Install Playwright and its Chromium browser to capture prototypes or run stories.                           |
 | migration_conflict       | 1        | —    | A target key exists with different content.                                                                 |
 | migration_unverified     | 1        | —    | Migration verification failed.                                                                              |
 | migration_source_changed | 1        | —    | The source changed during the run; put it in read-only mode, then re-run.                                   |
 | source_not_read_only     | 1        | —    | The source accepted a write probe. Set PROTOTYPES_READ_ONLY=1 and drain requests first.                     |
 | invalid_source           | 1        | 422  | Source paths must stay inside the app's source roots.                                                       |
 | host_not_allowed         | —        | 403  | Open the gallery at 127.0.0.1 or add the host to dev.allowedHosts.                                          |
+
+For `proto login --json`, `rate_limited` includes `retryAfterSeconds` in the error object.

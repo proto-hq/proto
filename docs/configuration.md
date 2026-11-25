@@ -36,6 +36,7 @@ Proto reads `proto.config.ts` from your app root using `defineProtoConfig` from 
 - `PROTOHQ_POLL=1`: enables polling file watching (`dev.poll`).
 - `PROTOHQ_TOKEN`: supplies a CLI session token for hosted commands or CI.
 - `PROTOHQ_WORKSPACE`: selects the active Proto Cloud workspace slug.
-- `PROTOHQ_API_URL`: overrides the API origin for loopback development or `https://staging-api.protohq.design`.
+
+> **Advanced / self-testing.** `PROTOHQ_API_URL` overrides the API origin for loopback development or `https://staging-api.protohq.design`.
 
 See [CLI and configuration](cli.md), [command catalog](commands.md), and the [JSON Schema](../schema/proto-config.schema.json). Run `proto check` to validate functions, regular expressions, and cross-field rules that JSON Schema cannot express.

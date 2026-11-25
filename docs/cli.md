@@ -10,7 +10,7 @@ proto <command> [positionals] [options] [--json] [--app <dir>] [--verbose]
 
 - `--json` prints a single JSON value on stdout. Human output is for people and may change. Exception: `proto mcp --json` writes startup errors to stderr so stdout stays reserved for JSON-RPC.
 - App selection uses `--app <dir>` (relative to the working directory, or `apps/<dir>`). Without it, Proto walks up to the nearest `proto.config.ts`, then tries a single `apps/*/proto.config.ts`. Multiple matches fail with `app_required`.
-- Unknown flags, missing values, and extra positionals exit `2`. `proto --help` lists commands and `proto --version` prints the installed version.
+- Unknown flags, missing values, and extra positionals exit `2`. Use `proto --help`, `proto -h`, or `proto help` for the command list. Use `proto dev --help`, `proto dev -h`, or `proto help dev` for a command’s arguments and options. `proto version` and `proto --version` print the installed version. Add `--json` to version for `{ version }`, or to command help for `{ command, summary, usage, arguments, options }`.
 - `--remote` works only on comment commands, review commands, and `proto url`, always paired with `--share <slug>`.
 
 Free runs locally, including authoring, review, and static builds. Interactive commands (`proto dev`, `proto start`, `proto init`, and `proto mcp`) require a free account (Google, GitHub, or an email link through `proto login`); CI is exempt when `CI` is set to a non-empty value other than `false` or `0`. Headless local commands (`check`, `build`, `stories run`, `migrate`, `stop`, `status`) and Vite/Storybook/Vitest integrations need no login. Stored sessions remain usable offline.
