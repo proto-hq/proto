@@ -73,8 +73,8 @@
 
 ### Migration to one local address (**breaking**)
 
-- Replace `@compozy/proto` with `@protohq/cli` in every import and pin the new version in every
-  workspace manifest that uses it, not only the gallery app's manifest.
+- Import from `@protohq/cli` everywhere and pin the new version in every workspace
+  manifest that uses it, not only the gallery app's manifest.
 - Remove a legacy `review.remote` block from `proto.config.ts`; run `proto login` instead for
   hosted review access.
 - Remove `dev.port` from `proto.config.ts`. Every project now uses Proto's shared address;
