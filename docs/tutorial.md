@@ -106,6 +106,9 @@ This pin is stored in `proto/review/stay-checkout.json`.
 
 ## 5. Read, fix, and resolve from the CLI or MCP
 
+Local comment commands and local MCP tool calls require online access to Proto Cloud. Sign in to
+use an Editor seat in a Pro workspace or the account's one-time allowance of 100 free operations.
+
 A coding agent — or a developer working in the terminal — reads open comments as structured JSON without opening a browser:
 
 ```sh

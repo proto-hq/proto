@@ -43,8 +43,9 @@ through the CLI or MCP. Agents never approve; people do.
 - **Comments point at source.** Every comment stores the selector, the element text, the rects
   and the `file:line:column` chain of the JSX that rendered it, plus the commit, state, theme,
   role and viewport.
-- **Agents run the review loop.** List, read, reply, resolve, attach screenshots and capture
-  evidence from the CLI (`--json`) or MCP. Everything except approval works without a browser.
+- **Agents run the review loop with Pro.** List, read, reply, resolve, attach screenshots and
+  capture evidence from the CLI (`--json`) or MCP. Try these tools with 100 free agent operations
+  per account, granted once.
 - **Prototypes can't reach production.** Build guards fail the build when prototype code
   reaches your production bundle, or when a prototype reaches your data layer.
 
@@ -306,7 +307,8 @@ and warns about states that no flow covers.
 
 Every command has `--json` output with stable shapes and exit codes. `proto mcp` exposes the same
 capabilities as MCP tools over stdio (`proto_comments_list`, `proto_comments_reply`,
-`proto_comments_resolve`, `proto_screenshot`, …), and the results equal the CLI `--json`.
+`proto_comments_resolve`, `proto_screenshot`, …). Their first text item matches the CLI
+`--json` result. An allowance notice can follow as a separate text item.
 Approval, credentials, migration and process lifecycle are intentionally not MCP tools:
 **agents never approve**.
 
@@ -321,22 +323,33 @@ keep project-specific rules in your `AGENTS.md`.
 Local review data lives in `proto/review/<key>.json` (one file per prototype or flow, committed with
 your code), written under a per-key lock so the CLI, MCP and the dev server can write concurrently.
 
+## Free and Pro
+
+Local authoring, human review in the gallery and static builds are Free. Headless Free commands
+such as `proto check` and `proto build` and the Vite, Storybook and Vitest integrations need no
+login or network access. Interactive `proto dev`, `proto start`, `proto init` and `proto mcp`
+startup need a free account from `proto login`. A truthy `CI` skips this startup check.
+
+Local `comments *`, `screenshot`, `evidence` and every local MCP tool call are Pro operations.
+Each needs online approval from Proto Cloud before it runs, even in CI. If the service cannot
+confirm access, the operation stops before reading or changing project data or writing a capture.
+A Pro Editor seat covers unlimited operations. Without a seat, the account can use a one-time
+allowance of 100 free operations that never resets. Starting `proto mcp` uses no operations.
+
+For Pro operations in CI, supply a Pro Editor seat holder's `PROTOHQ_TOKEN`. Check
+`agentAccess` with `proto whoami --json`. When a paid operation returns `plan_required` or
+`seat_required`, follow its `next` action and URL.
+
+Pro costs **US$15/month per Editor seat** or **US$12/month per Editor seat billed yearly
+(US$144/year)**, with no trial. Stripe Tax adds applicable taxes at checkout.
+
+Proto Cloud requires 0.3.0 or later. Update a 0.2.x install to `@protohq/cli@latest` to sign in
+again, then use `proto init --skills` to refresh the agent skills.
+
 ## Hosted review
 
-Free still runs locally, including authoring, review and static builds. Interactive commands
-(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
-and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
-to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
-session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
-explicit credential rejection in another 4xx response requires replacing credentials; all other
-responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
-`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
-(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
-account and plan requirements.
-
-Pro adds hosted collaboration for **US$15/month per Editor seat**, or **US$12/month per Editor
-seat billed yearly (US$144/year)**, plus any tax Stripe Tax adds at checkout. A Free workspace's
-`proto share` answers `plan_required` with its upgrade URL.
+Pro includes hosted collaboration. A Free workspace's `proto share` answers `plan_required`
+with its upgrade URL.
 
 ```sh
 proto login
@@ -364,7 +377,9 @@ publishing includes up to 60 state thumbnails. Use `--no-captures` to skip them.
 
 Store commands require `--remote --share <slug>` and CLI login. Missing credentials report
 `not_logged_in` (exit 4); missing `--share` reports `invalid_input` (exit 2); connection failures
-report `network_unavailable` (exit 4). Local MCP store tools accept `remote: true` and `share`.
+report `network_unavailable` (exit 4). CLI store commands using these flags follow the hosted
+share's access rules. Local MCP store tools accept `remote: true` and `share` and still require
+local agent access.
 For hosted access without a checkout, connect an OAuth-capable Streamable HTTP MCP client to
 `https://mcp.protohq.design/mcp` and authorize the workspace in the browser. Agents never approve.
 
@@ -372,7 +387,7 @@ Proto operates hosted review at `https://app.protohq.design` with the API at
 `https://api.protohq.design`. Self-hosted server exports and the former Cloudflare sharing
 commands are removed.
 
-> **Advanced / self-testing.** Set `PROTOHQ_API_URL=https://staging-api.protohq.design` to target staging.
+> **Advanced / self-testing.** Set `PROTOHQ_API_URL=https://staging-api.protohq.design` to target staging for hosted operations. The published CLI always uses production for local agent checks and allowance status.
 
 ## Documentation
 
@@ -504,7 +519,7 @@ Report vulnerabilities through [SECURITY.md](https://github.com/proto-hq/proto/b
 
 ## License
 
-[Proto EULA](https://github.com/proto-hq/proto/blob/main/LICENSE). Free local use, including commercial projects. Third-party licenses are preserved in `THIRD_PARTY_NOTICES.md` in the npm package.
+[Proto EULA](https://github.com/proto-hq/proto/blob/main/LICENSE). Free local authoring, human review and static builds, including commercial projects. Third-party licenses are preserved in `THIRD_PARTY_NOTICES.md` in the npm package.
 
 ### Existing Storybook stories
 

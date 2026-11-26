@@ -1,12 +1,15 @@
 # Getting started
 
-Install `@protohq/cli` in a React 19 + Vite 8 application to run the full local prototype gallery and review loop on your machine — free forever, including for commercial projects.
+Install `@protohq/cli` in a React 19 + Vite 8 application. Local authoring, review in the gallery,
+and static builds are Free, including for commercial projects. Pro includes local MCP tool calls
+and the local `comments *`, `screenshot`, and `evidence` commands. You can try them with a
+one-time allowance of 100 free operations per account. See [CLI and configuration](cli.md).
 
 ## Prerequisites
 
 - **React 19** and **Vite 8** installed in the target app. Proto compiles prototypes with your app's own Vite config and React installation.
 - **Node.js 22+** or **Bun** to run the `proto` CLI.
-- A free Proto account for interactive local commands (`proto dev`, `proto start`, `proto init`, `proto mcp`). Sign in with Google, GitHub, or an email link through `proto login`. CI environments (`CI=1`) and headless commands (`proto check`, `proto build`, `proto status`, `proto stop`, `proto migrate`) do not require login.
+- A free Proto account for interactive local commands (`proto dev`, `proto start`, `proto init`, `proto mcp`). Sign in with Google, GitHub, or an email link through `proto login`. `CI=1` skips the Free startup sign-in check. Headless Free commands (`proto check`, `proto build`, `proto status`, `proto stop`, `proto migrate`) need no login. Pro operations still need an online check in CI.
 
 ## Install and initialize
 

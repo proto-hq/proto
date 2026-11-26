@@ -18,32 +18,43 @@ proto <command> [positionals] [options] [--json] [--app <dir>] [--verbose]
 - `proto --help`, `proto -h` and `proto help` list the commands. Add `--help` or `-h` after a
   command, or run `proto help dev` for the usage, arguments, flags, and defaults of a command.
   With `--json`, command help returns `{ command, summary, usage, arguments, options }`.
+  Top-level `proto --help --json` returns `{ commands, plans }`. `commands` stays a `string[]`
+  of command names. `plans` maps each local command name to `"free"` or `"pro"`. Cloud
+  commands appear in `commands` and use their own service rules.
 - `proto version` and `proto --version` print the installed version. Add `--json` for `{ version }`.
 - Paths in output are app-relative, except `proto build`, which returns the absolute
   `dist-proto` path.
 - `--remote` works only on the comment and review commands and on `url`. Every other command
   exits 2 with `This command does not support --remote`.
 
-Free still runs locally, including authoring, review and static builds. Interactive commands
-(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
-and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
-to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
-session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
-explicit credential rejection in another 4xx response requires replacing credentials; all other
-responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
-`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
-(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
-account and plan requirements.
+Local authoring, human review in the gallery and static builds are Free. Local `comments *`,
+`screenshot`, `evidence` and every local MCP tool call are Pro operations. Proto Cloud
+checks each operation online before it runs. An Editor seat in a Pro workspace covers
+unlimited operations. Without a seat, the account has a one-time allowance of 100 free
+operations that never resets. If Proto Cloud cannot confirm access, the operation stops before
+reading or changing project data or writing captures. Starting `proto mcp` uses no operations.
 
-Runners that do not export `CI` must set `CI=1` or provide `PROTOHQ_TOKEN` when invoking
-interactive commands. The session probe sends the normal CLI headers to the Proto API:
-version, platform/architecture, device kind, and hostname in `User-Agent`.
+Interactive `proto dev`, `proto start`, `proto init` and `proto mcp` startup need a free
+account. Sign in with `proto login` using Google, GitHub or an email link. A stored login lets
+these commands start when the sign-in check cannot reach Proto Cloud. A truthy `CI` skips only
+the Free startup sign-in rule. Use `PROTOHQ_TOKEN` from a seat holder for Pro operations in CI.
+Headless Free commands such as `proto check` and `proto build` and the Vite, Storybook and Vitest
+integrations need no login or network access.
+
+The published CLI uses the production login at `https://api.protohq.design` for agent checks
+and allowance status, regardless of `PROTOHQ_API_URL`. The sign-in probe sends the CLI
+version, platform and architecture, device kind, and hostname in `User-Agent`.
 
 The probe checks account identity without an `X-Proto-Workspace` header. A rejected environment
 token must be unset or replaced; `proto login` does not override `PROTOHQ_TOKEN`. If the stored
 credentials file is corrupt, its error names the path and `proto login` replaces it after approval.
 
 ## Commands
+
+Local CLI commands below are Free except `comments *`, `screenshot`,
+`evidence` and the `mcp` entry, which help labels `(Pro)`. Use `--remote --share <slug>` for
+hosted comments under the share's access rules. All MCP tool calls count as Pro operations,
+including those with Free CLI equivalents.
 
 Read and check:
 
@@ -125,15 +136,21 @@ Linux with a display, and `server` elsewhere.
 
 Process lifecycle:
 
-| Command                           | What                                                             |
-| --------------------------------- | ---------------------------------------------------------------- |
-| `proto init [--skills] [--force]` | Scaffold the app and/or install the agent skills (`setup.md`)    |
-| `proto start`                     | Start Proto in the background; `{ url, started, pid, version }`  |
-| `proto stop`                      | Stop Proto; `{ stopped, waiting }`; project terminals stay alive |
-| `proto status`                    | Inspect without starting anything; `{ daemon, projects }`        |
-| `proto dev [--open]`              | Project gallery on the shared Proto address                      |
-| `proto build [--remote]`          | `dist-proto/`: read-only static gallery, or the remote build     |
-| `proto mcp`                       | MCP server over stdio                                            |
+| Command                           | What                                                                 |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `proto init [--skills] [--force]` | Scaffold the app and/or install the agent skills (`setup.md`)        |
+| `proto start`                     | Start Proto in the background; `{ url, started, pid, version }`      |
+| `proto stop`                      | Stop Proto; `{ stopped, waiting }`; project terminals stay alive     |
+| `proto status`                    | Inspect without starting anything; `{ daemon, projects }`            |
+| `proto dev [--open]`              | Project gallery on the shared Proto address                          |
+| `proto build [--remote]`          | `dist-proto/`: read-only static gallery, or the remote build         |
+| `proto mcp`                       | Start the Pro local MCP server over stdio without using an operation |
+
+`proto whoami --json` includes a read-only `agentAccess` field. Its shape is
+`{ via: "seat", workspace: { slug } }` for a seat holder, or
+`{ via: "allowance" | "none", allowance: { granted, used, remaining }, next: { kind, url } }`.
+The seat may belong to another Pro workspace. If only the agent status read fails, the field
+is `null` and the rest of the response still describes the signed-in account.
 
 ## Project URLs and lifecycle JSON
 
@@ -212,7 +229,12 @@ See `troubleshooting.md` and the generated `errors.md` for exact recovery and me
 Errors print `{ "error": { "code", "message", ... } }` with `--json`. Usage errors have only a
 `message`. `key_busy` means another writer holds the review lock; retry.
 
-For `proto login --json`, `rate_limited` includes `retryAfterSeconds` in the error object.
+For agent operations, `plan_required` and `seat_required` include `allowance` and
+`next: { kind, url }`. Human output ends with the next action. Relay the message and URL, then
+stop the paid step. The action is `upgrade`, `ask_owner_upgrade` or `ask_owner_seat`.
+An agent check's `rate_limited` (exit 1) includes `retryAfter` in seconds. Wait at least that
+long before retrying. The CLI issues one check per operation. For `proto login --json`,
+`rate_limited` instead includes `retryAfterSeconds`.
 `login_interrupted` means a token exchange may have completed during a timeout or outage. Run
 `proto login` again.
 
@@ -227,7 +249,8 @@ For `proto login --json`, `rate_limited` includes `retryAfterSeconds` in the err
   `file` and `attachment`. For example, `{ "id": "login-form-7", "note": "Fixed." }`. Store tools
   accept `"remote": true`.
 - Results are the same JSON as `--json`. Errors come back as `isError` with the same `error`
-  body.
+  body. The last text item can be an allowance notice prefixed with `[Proto]`. Relay that
+  notice once per stage (first use, low, used up). On the CLI, notices go to stderr.
 - Not exposed: `init`, `dev`, `start`, `stop`, `status`, `build`, `mcp`, `migrate`, `review approve`, `review reopen`,
   `review unlock` and cloud management commands. `proto_comments_attachments` always writes to
   `.tmp/proto/<id>/`.

@@ -2,6 +2,10 @@
 
 Proto is a live prototype gallery and review loop for React 19 + Vite 8 apps. Write `*.proto.tsx` files beside your real views, let people pin comments directly to elements and flow steps, and let your coding agent read, fix, and resolve threads through the CLI or MCP while people stay in charge of approval.
 
+Authoring and human review in the gallery are Free. Local MCP tool calls and the local
+`comments *`, `screenshot`, and `evidence` commands are Pro, with a one-time allowance of
+100 free operations per account. See [CLI and configuration](cli.md).
+
 ## Start here
 
 - [Getting started](getting-started.md) — install `@protohq/cli`, sign in, initialize your app, and open the local gallery.

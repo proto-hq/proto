@@ -9,7 +9,9 @@ OAuth and HTTP.
 
 Initialize the app with [Getting started](getting-started.md), install the optional MCP peer with
 `npm i -D @modelcontextprotocol/sdk` (or the equivalent for your package manager), and sign in
-with `proto login` if you have not already. Local review works on Free. Replace
+with `proto login` if you have not already. Every local MCP tool call is a Pro agent operation.
+An account without a Pro Editor seat can try them with a one-time allowance of 100 free
+operations. Replace
 `/absolute/path/to/app` with the location of the initialized app and use your installed `proto`
 executable.
 
@@ -46,8 +48,8 @@ Use the client setup above to give the agent MCP tools.
 
 ### Proto Cloud (remote HTTP)
 
-Remote MCP requires a Pro workspace. Free workspaces can authorize a connection, but tool calls
-return `plan_required`.
+Remote MCP requires a Pro workspace. Free workspaces can authorize a connection. Their tool
+calls return `plan_required`. The free agent allowance applies to the local server.
 
 Use these settings to work with hosted reviews without a checkout. Sign in in the browser and
 authorize the workspace your agent should use.
@@ -86,10 +88,20 @@ Open **Cursor Settings → Tools & MCP**, find **proto**, and choose **Connect**
 ## Local server behavior
 
 The local server reserves stdout for MCP. Starting it interactively requires a free account from
-`proto login` (Google, GitHub or an email link). CI is exempt and stored sessions work offline.
-Login failures exit nonzero and write only to stderr; `--json` writes the JSON error envelope there.
+`proto login` (Google, GitHub or an email link). A truthy `CI` skips this startup check. Starting
+the server and listing tools use no operations. Login failures exit nonzero and write only to
+stderr. With `--json`, stderr carries the JSON error envelope.
+
+Proto Cloud checks each tool call online before the operation runs, including tools with a Free
+CLI equivalent. In CI, supply a Pro Editor seat holder's CLI token in `PROTOHQ_TOKEN`. When
+Proto Cloud cannot confirm access, the tool returns an error without running the operation.
 The [command catalog](commands.md) lists local tools. Store tools accept `remote: true` and an
-explicit `share` after CLI login.
+explicit `share` after CLI login and still undergo the local agent check.
+
+The final MCP text item can start with `[Proto]` and carry an allowance notice. Relay it once per
+stage (first use, low, used up). On `plan_required` or `seat_required`, stop the paid step and
+show the returned message and action URL from `next`. Free CLI commands and human review in
+the gallery remain available.
 
 ## Hosted connection and consent
 

@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## v0.3.0
+
+### Breaking
+
+- Local MCP tool calls and local `proto comments *`, `proto screenshot` and `proto evidence`
+  now require an online Proto Cloud check, including in CI. An Editor seat in a Pro workspace
+  covers unlimited operations. Accounts without a seat can use 100 free operations once,
+  with no reset. Local authoring, human review and static builds stay Free. Proto Cloud cuts
+  off 0.2.x clients. Update to `@protohq/cli@latest` (0.3.0 or later), sign in with
+  `proto login`, and rerun `proto init --skills`. To keep using agent tools after the allowance
+  runs out, follow the upgrade or seat action the CLI or MCP returns.
+
 ## v0.2.3
 
 ### Help and first run

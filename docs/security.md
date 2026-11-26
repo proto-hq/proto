@@ -3,10 +3,17 @@
 Proto is a closed product. The npm package contains bundled code and public type declarations;
 the public repository contains documentation, skills, schema and examples. Read the [EULA](../LICENSE).
 
-Proto does not collect product analytics or telemetry from local authoring and review. Local
-operations work offline. Explicit cloud operations send the authentication, snapshot and review
-data needed to provide the service. Hosted services retain operational records, billing state and
-MCP usage for service operation and plan enforcement; these are not local telemetry.
+Proto does not collect product analytics or telemetry from local authoring and review. Free
+headless commands work offline. Every local MCP tool call and every local `comments *`,
+`screenshot`, or `evidence` invocation needs online authorization from Proto Cloud before the
+operation runs. Without a Pro Editor seat, an admitted operation uses one of the account's
+100 free operations, granted once and never reset.
+
+The request body is an empty JSON object. The request sends the CLI login token, the selected
+workspace if set, the CLI version, platform and architecture, device kind, and the hostname in
+`User-Agent`. It identifies that a local agent operation was requested without sending a
+command or tool name, arguments, paths, comments, captures, or other prototype content. Hosted operations send the authentication, snapshot, and review data needed
+to provide those features. See the [Privacy Policy](https://protohq.design/legal/privacy/).
 
 Review snapshots may contain executable application code. Publish only content you intend to share,
 use fixtures instead of real customer data, and never embed secrets in client-side code. Hosted

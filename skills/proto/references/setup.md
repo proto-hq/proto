@@ -1,15 +1,15 @@
 # Setup, configuration and guards
 
-Free still runs locally, including authoring, review and static builds. Interactive commands
-(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
-and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
-to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
-session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
-explicit credential rejection in another 4xx response requires replacing credentials; all other
-responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
-`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
-(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
-account and plan requirements.
+Interactive `proto dev`, `proto start`, `proto init` and `proto mcp` startup need a free
+account. Sign in with `proto login` using Google, GitHub or an email link. A stored login lets
+these commands start when the sign-in check cannot reach Proto Cloud. A truthy `CI` skips only
+the Free startup sign-in rule. Use `PROTOHQ_TOKEN` from a seat holder for Pro operations in CI.
+Headless Free commands such as `proto check` and `proto build` and the Vite, Storybook and Vitest
+integrations need no login or network access.
+
+Local `comments *`, `screenshot`, `evidence` and each local MCP tool call need an online
+check with Proto Cloud. Without a Pro Editor seat, they use the account's one-time allowance of
+100 free operations. See [CLI](cli.md) for the access and output contract.
 
 Contents: install · `proto init` · `proto.config.ts` · guards · Vite, Storybook and Vitest ·
 the render origin · agent skills.

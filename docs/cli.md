@@ -13,7 +13,40 @@ proto <command> [positionals] [options] [--json] [--app <dir>] [--verbose]
 - Unknown flags, missing values, and extra positionals exit `2`. Use `proto --help`, `proto -h`, or `proto help` for the command list. Use `proto dev --help`, `proto dev -h`, or `proto help dev` for a command’s arguments and options. `proto version` and `proto --version` print the installed version. Add `--json` to version for `{ version }`, or to command help for `{ command, summary, usage, arguments, options }`.
 - `--remote` works only on comment commands, review commands, and `proto url`, always paired with `--share <slug>`.
 
-Free runs locally, including authoring, review, and static builds. Interactive commands (`proto dev`, `proto start`, `proto init`, and `proto mcp`) require a free account (Google, GitHub, or an email link through `proto login`); CI is exempt when `CI` is set to a non-empty value other than `false` or `0`. Headless local commands (`check`, `build`, `stories run`, `migrate`, `stop`, `status`) and Vite/Storybook/Vitest integrations need no login. Stored sessions remain usable offline.
+Local authoring, human review in the gallery, and static builds are Free. Headless Free commands
+such as `proto check` and `proto build` and the Vite, Storybook, and Vitest integrations need no
+login or network access. Interactive `proto dev`, `proto start`, `proto init`, and `proto mcp`
+startup require a free account from `proto login`. A stored login lets these commands start if the
+sign-in check cannot reach Proto Cloud. A nonempty `CI` other than `false` or `0` skips this
+startup check.
+
+## Local agent operations
+
+Local `comments *`, `screenshot`, `evidence`, and every local MCP tool call are Pro operations.
+Proto Cloud checks each one online before the operation can read or change project data or write
+a capture. Offline or without an allowed response, the operation stops before those steps. An
+Editor seat in a Pro workspace covers unlimited operations. Otherwise, the account has a one-time
+allowance of 100 free operations that never resets. Each admitted operation uses one from the
+allowance, even if it fails afterwards. Starting `proto mcp` uses no operations. CLI comments with
+`--remote --share <slug>` use the hosted share's access rules.
+
+In CI, set `PROTOHQ_TOKEN` to a CLI token from a Pro Editor seat holder for Pro operations. The
+published CLI uses `https://api.protohq.design` for agent access and allowance status even when
+`PROTOHQ_API_URL` points elsewhere. See your balance in `proto whoami --json` under `agentAccess`.
+When `CI` is unset or disabled, `proto dev`, `proto start`, and `proto init` show an `Agents`
+line when the account check succeeds and a balance is available for an account without a seat.
+You can also see your allowance on Home and Billing in the web app. The local gallery and web
+app show a notice when 20 or fewer operations remain or the allowance is used up. Proto may
+email you once when the allowance runs low and once when it is used up.
+
+`proto --help` marks Pro commands with `(Pro)`. `proto --help --json` keeps `commands` as a
+`string[]` and adds a `plans` map from local command names to `"free"` or `"pro"`.
+
+## Upgrading
+
+Proto Cloud requires 0.3.0 or later. Version 0.2.x can no longer sign in or access Proto Cloud.
+Install `@protohq/cli@latest`, sign in with `proto login`, and refresh your agent skills with
+`proto init --skills`.
 
 When upgrading from `0.1.x`, replace legacy package imports with `@protohq/cli` across every workspace manifest and remove any legacy `remote` block nested under `review` in `proto.config.ts`; run `proto login` instead for hosted review access.
 
@@ -57,7 +90,14 @@ See the generated [command catalog](commands.md) for the complete CLI and local 
 | `3`  | Missing optional peer           | `playwright_missing`, missing `@modelcontextprotocol/sdk`                                                               |
 | `4`  | Remote or authentication error  | `not_logged_in`, `auth_required`, `plan_required`, `seat_required`, `cli_outdated`                                      |
 
-Structured errors print `{ "error": { "code", "message" } }` with `--json`. Every code and HTTP status is listed in the [error registry](errors.md).
+Structured errors print `{ "error": { "code", "message" } }` with `--json` and can include extra
+fields. An agent access denial (`plan_required` or `seat_required`) ends with the action in
+`next`. Use its URL to upgrade, ask an owner to upgrade, or ask an owner for an Editor seat.
+An agent check's `rate_limited` error includes `retryAfter` in seconds.
+
+Allowance notices go to stderr on first use and when 20 or fewer operations remain. Agents
+relay each stage once (first use, low, used up). See the [error registry](errors.md) for codes and
+HTTP statuses.
 
 ## Configuration
 

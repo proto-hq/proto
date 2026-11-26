@@ -1,17 +1,8 @@
 # Hosted operations
 
-Free still runs locally, including authoring, review and static builds. Interactive commands
-(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
-and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
-to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
-session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
-explicit credential rejection in another 4xx response requires replacing credentials; all other
-responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
-`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
-(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
-account and plan requirements.
-
-Local authoring and review work offline. Hosted publishing requires a signed-in Editor and a
+Local authoring, human review and static builds are Free. Local agent operations use a Pro
+Editor seat or the account's one-time 100-operation allowance and require an online check. See
+[CLI](cli.md) for the local plan rules. Hosted publishing requires a signed-in Editor and a
 Pro workspace. Run `proto login`, `proto whoami`, `proto workspace list`, then
 `proto workspace use <slug>`. `proto logout` removes the CLI session.
 
@@ -52,6 +43,8 @@ proto review status --remote --share checkout --json
 ```
 
 The local stdio server `proto mcp --app <dir>` accepts `remote: true` and `share` on store tools.
+Each call through that server still needs local agent access. CLI store commands using
+`--remote --share <slug>` use the hosted share's access rules.
 For hosted access without a checkout, configure an OAuth-capable Streamable HTTP MCP client with
 `https://mcp.protohq.design/mcp`. Complete browser authorization for the intended workspace.
 Remote tools operate within that grant; CLI credentials are not remote MCP OAuth grants.

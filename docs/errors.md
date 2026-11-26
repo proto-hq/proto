@@ -100,4 +100,6 @@ Generated from the shipped registry. A dash means the transport does not assign 
 | invalid_source           | 1        | 422  | Source paths must stay inside the app's source roots.                                                       |
 | host_not_allowed         | —        | 403  | Open the gallery at 127.0.0.1 or add the host to dev.allowedHosts.                                          |
 
-For `proto login --json`, `rate_limited` includes `retryAfterSeconds` in the error object.
+For local agent access, `plan_required` and `seat_required` include `allowance` and `next`. Follow the action and URL in `next`. `plan_required` can carry `allowance_exhausted` or `allowance_unavailable` in `reason`.
+
+An agent check's `rate_limited` includes `retryAfter` in seconds. For `proto login --json`, `rate_limited` includes `retryAfterSeconds` in the error object.

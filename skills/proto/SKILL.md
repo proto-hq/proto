@@ -16,16 +16,28 @@ This skill is the shipped contract and is replaced by `proto init --skills` on u
 project rules (which views exist, where fixtures live, which specs to use) in the project's
 `AGENTS.md` or `CLAUDE.md`, not in this file.
 
-Free still runs locally, including authoring, review and static builds. Interactive commands
-(`proto dev`, `proto start`, `proto init` and `proto mcp`) need a free account: run `proto login`
-and sign in with Google, GitHub or an email link in the browser. CI is exempt when `CI` is set
-to a nonempty value other than `false` or `0` (case insensitive). `PROTOHQ_TOKEN` also supplies a
-session. The CLI probes the active API origin with a three-second timeout. Only HTTP 401 or
-explicit credential rejection in another 4xx response requires replacing credentials; all other
-responses and transport failures keep local access. Headless local commands, including `check`, `build`, `stories run`, `migrate`,
-`stop` and `status`, plus help, version output and the Vite/Storybook/Vitest integrations
-(`proto()` and `protoPresentation()`), do not need login. Cloud commands keep their existing
-account and plan requirements.
+Local authoring, human review in the gallery and static builds are Free. Local `comments *`,
+`screenshot`, `evidence` and every local MCP tool call are Pro operations. Proto Cloud
+checks each operation online before it runs. An Editor seat in a Pro workspace covers
+unlimited operations. Without a seat, the account has a one-time allowance of 100 free
+operations that never resets. If Proto Cloud cannot confirm access, the operation stops before
+reading or changing project data or writing captures. Starting `proto mcp` uses no operations.
+
+Interactive `proto dev`, `proto start`, `proto init` and `proto mcp` startup need a free
+account. Sign in with `proto login` using Google, GitHub or an email link. A stored login lets
+these commands start when the sign-in check cannot reach Proto Cloud. A truthy `CI` skips only
+the Free startup sign-in rule. Use `PROTOHQ_TOKEN` from a seat holder for Pro operations in CI.
+Headless Free commands such as `proto check` and `proto build` and the Vite, Storybook and Vitest
+integrations need no login or network access.
+
+On the CLI, read allowance notices on stderr, including with `--json`. On MCP, read the last
+text item beginning with `[Proto]`. Relay the notice to the person once per stage: first use,
+low (20 or fewer left), and used up. On `plan_required` or `seat_required`, stop the paid step,
+quote the returned message and follow `next` with its URL: upgrade, ask an owner to upgrade, or
+ask an owner for an Editor seat. Continue with Free CLI commands such as `proto check` or
+`proto url`, or direct the person to the gallery for human review. If you only have MCP,
+stop using Proto tools until access is restored. Every MCP tool call is Pro.
+Use `proto whoami --json` to inspect `agentAccess` without spending an operation.
 
 ## Mental model
 
@@ -52,10 +64,9 @@ account and plan requirements.
   `share list`, `share invite <slug>` and `share revoke <slug>`. Read `references/hosted.md`
   before cloud operations and `references/errors.md` for generated error and exit codes.
 
-- **Review store.** `proto/review/<key>.json` per prototype (key = slug) or flow
-  (key = `flow-<id>`), committed with the code. Comment ids are `<key>-<n>`. Each key is
-  `in_review` or `approved`; approval records the commit and is a human act. A new comment on an
-  approved prototype puts it back in review.
+- **Review state.** Each prototype (key = slug) or flow (key = `flow-<id>`) is `in_review` or
+  `approved`. Approval records the commit and is a human act. A new comment on an approved
+  prototype puts it back in review. Comment ids are `<key>-<n>`.
 - **Guards.** The production boundary (`proto()` in `vite.config.ts`) fails the app build when
   prototype-only code reaches it. The network guard fails `proto check`, `proto build` and
   Storybook/Vitest with `protoPresentation()` when a prototype, draft or story reaches a module
@@ -110,7 +121,10 @@ Startup diagnostics: `~/.config/protohq/daemon/daemon.log`. Codes include `port_
    `network_import` once those modules are listed.
 4. **Agents never approve or reopen reviews**, never run `review unlock`, and delete comments only
    when a person asks. Resolving a comment is not approval.
-5. **Never edit `proto/review/**` by hand.** Use the CLI, MCP or the gallery.
+5. **Never read or edit `proto/review/**` directly or call the gallery's `/__proto/api`.**
+   Use supported CLI or MCP commands. Leave gallery review to people. Use the current CLI and
+   follow `next` when access is denied. Pinning an older CLI or setting `CI` to bypass the
+   paid check is prohibited.
 
 ## Working loop
 

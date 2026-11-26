@@ -47,7 +47,8 @@ Remote MCP cannot publish, invite, revoke shares, delete comments, approve revie
 
 ## Usage and access management
 
-Free workspaces can authorize, but tool calls return `plan_required`. Pro workspaces have
+Free workspaces can authorize a remote connection. Remote tool calls on Free return
+`plan_required`. The one-time allowance covers [local agent operations](cli.md). Pro workspaces have
 100,000 calls per Editor seat per UTC calendar month, pooled within the workspace. Each admitted
 tool invocation is metered before its operation, including an operation that subsequently fails.
 Discovery and tool listing are not metered. An exhausted allowance returns `plan_limit_reached`

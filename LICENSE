@@ -1,5 +1,5 @@
 Proto End User License Agreement
-Version: 2026-11-23
+Version: 2026-11-26
 
 Copyright (c) 2026 Compozy LLC. All rights reserved.
 
@@ -12,8 +12,9 @@ accept it for an organization, you confirm that you may bind that organization,
 and the license then also covers its employees and contractors working for it.
 
 License. You are granted a non-exclusive, non-transferable license to install
-and use Proto for local prototype authoring, previewing, building and review,
-free of charge, including for commercial projects. You may make the copies you
+and use Proto for local prototype authoring, previewing, building and human
+review, free of charge, including for commercial projects. Local agent
+operations are subject to the access rules below. You may make the copies you
 need for that use inside your organization, including in CI systems, container
 images and internal package mirrors, as long as those copies are not available
 to the public.
@@ -29,26 +30,46 @@ Restrictions. You may not redistribute, sublicense, sell, copy for
 redistribution, modify, or create derivative products from the Software, or
 reverse engineer, decompile or disassemble it, except to the extent applicable
 law expressly permits despite this restriction, and except as the section
-above allows. No rights to the Software are granted except those stated here.
+above allows. You may not bypass the online access check or the limits on
+local agent operations. No rights to the Software are granted except those
+stated here.
 Compozy LLC and its licensors own the Software. This EULA is a license, not a
 sale.
 
-Proto account and Proto Cloud. The interactive commands of the Software
-(proto dev, proto start, proto init and proto mcp) require a free Proto
-account and check that you are signed in. Commands meant for CI and scripts do
-not. Proto Cloud, the hosted service that includes the web app, hosted shares,
-hosted review and the remote MCP server, is a separate service governed by the
-Proto Terms of Use (https://protohq.design/legal/terms/) and the Proto Privacy
-Policy (https://protohq.design/legal/privacy/). Those terms also apply when
-the Software contacts Proto Cloud, for example to sign in, to check sign-in,
-to publish a share or to run a command with --remote. Hosted features require
-a paid Pro subscription.
+Proto account and Proto Cloud. The interactive commands of the Software (proto
+dev, proto start, proto init and proto mcp) require a free Proto account and
+check that you are signed in. CI can skip that sign-in check. Headless Free
+commands such as proto check and proto build need no account. Proto Cloud, the
+hosted service that includes the web app, hosted shares, hosted review and the
+remote MCP server, is a separate service governed by the Proto Terms of Use
+(https://protohq.design/legal/terms/) and the Proto Privacy Policy
+(https://protohq.design/legal/privacy/). Those terms also apply when the
+Software contacts Proto Cloud, for example to sign in, to check sign-in, to
+publish a share or to run a command with --remote. Hosted features require a
+paid Pro subscription. Proto Cloud requires version 0.3.0 or later to sign in or
+use the Service.
+
+Local agent operations. Every tool call to the local MCP server and every
+local use of proto comments, proto screenshot or proto evidence requires an
+online check with Proto Cloud, including in CI. If the check cannot confirm
+access, the operation does not run. Starting the MCP server does not use an
+operation. An Editor seat in a Pro workspace covers unlimited local agent
+operations. Without a seat, your account has a one-time allowance of 100 free
+operations. An admitted operation uses one from that allowance, even if the
+operation later fails. The allowance never resets. We link it to keyed hashes
+of verified email addresses, which we keep after account deletion as described
+in the Privacy Policy. We may send one service email when 20 or fewer
+operations remain and one when the allowance is used up.
 
 Data. The Software collects no telemetry or analytics. The sign-in check sends
 your sign-in token and the device details described in the Privacy Policy, and
-nothing about your projects or files. Commands that use Proto Cloud send the
-data described in the Privacy Policy. Everything else the Software does stays
-on your machine.
+nothing about your projects or files. The local agent access check sends your
+CLI login token, the selected workspace if set, and the CLI version and standard
+device details described in the Privacy Policy. The request body is an empty
+JSON object. It says only that a local agent operation was requested. It sends
+no command or tool name, arguments, prototype content, or results. Commands that
+use hosted features send the data described in the Privacy Policy. Everything
+else the Software does stays on your machine.
 
 Third-party components remain subject to their respective licenses, reproduced
 in the package’s THIRD_PARTY_NOTICES.md. This agreement does not restrict those rights.

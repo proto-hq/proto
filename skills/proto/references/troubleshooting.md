@@ -121,6 +121,15 @@ Run `proto status --json` first; it starts nothing. Inspect
   unreadable data or a held state lock); preserve state and fix that cause before retrying.
 - **`project_busy`**: another capture is serving the project or `proto dev` is still starting
   after 60 seconds. Wait for that command, or keep `proto dev` running to share a ready server.
+- **`plan_required` / `seat_required` on agent operations**: stop the paid step and show the
+  error message and action URL from `next`. Continue with Free commands such as `proto check`
+  or `proto url`.
+- **`network_unavailable` on agent operations**: restore connectivity to Proto Cloud and try
+  again. The operation needs an online decision before it runs.
+- **`rate_limited` on agent operations**: honor `retryAfter` (seconds). Each retry needs a new
+  online check.
+- **`cli_outdated`**: install `@protohq/cli@latest` (0.3.0 or later) and rerun
+  `proto init --skills` to refresh the agent instructions.
 - **`project_offline`**: start this project with the `cd <folder> && proto dev` command in the
   message. For `proto url <slug> --bare`, start it once to reserve its first preview address.
 - **`project_not_found`**: open home at `http://127.0.0.1:4400/` and select a known project.
