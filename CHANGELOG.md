@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## v0.3.1
+
+### Performance
+
+- `proto dev` discovers preview dependencies at startup to reduce reloads when you open a prototype.
+  It checks ignored directories once and parses each story file once when building the gallery index.
+
+### Fixes
+
+- `proto dev` skips Git-ignored paths in its watchers. On macOS it uses native file notifications
+  by default. Set `PROTOHQ_POLL=1` if the filesystem misses notifications.
+
 ## v0.3.0
 
 ### Breaking

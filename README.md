@@ -153,7 +153,12 @@ project; drafts saved before project isolation are left in the browser and are n
 `PROTOHQ_PORT` chooses Proto's port (default `4400`) when it starts. The last port is remembered
 for later starts and URL commands. To move it, run `proto stop`, then
 `PROTOHQ_PORT=4500 proto start`. Setting the variable while Proto is already running takes effect
-after the next stop. `PROTOHQ_POLL=1` enables the project's polling file watcher.
+after the next stop.
+
+Proto uses native file notifications by default, including on macOS. If a managed or mounted
+filesystem misses notifications, set `dev.poll: true` or run `PROTOHQ_POLL=1 proto dev`.
+The registry and preview watchers skip paths that Git ignores. Restart `proto dev` after
+changing an ignore rule. Outside a Git worktree, Proto still skips dependency and temporary files.
 
 Get a gallery URL with `proto url login-form --state error`. Get the separate preview address
 with `proto url login-form --state error --bare`; start the project once before requesting its
